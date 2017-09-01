@@ -1,1 +1,5 @@
 This is where we log changes made so we all know what has been done and what we are working on.
+
+9/1:
+  Created a quick mockup of our home page. It still needs some work with possible color scheme and text sizes
+  as well as layout. Would like your input on what you like/dont like or want to change.
