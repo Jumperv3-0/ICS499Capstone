@@ -1,9 +1,9 @@
 <?php
 function getNavBar(){
-	$logincookie = false;
+	$logincookie = true;
 	if($logincookie == false) {
 		echo '<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-				<div class="container-flex">
+				<div class="container">
 					<div class="navbar-header">
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -11,7 +11,7 @@ function getNavBar(){
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 			</button>
-						<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
+						<a class="navbar-brand" href="#"><img src="../img/garage_logo_final2.jpg" /></a>
 					</div>
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
@@ -45,7 +45,7 @@ function getNavBar(){
 	}
 	if($logincookie == true) {
 		echo '<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-				<div class="container-flex">
+				<div class="container">
 					<div class="navbar-header">
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -53,7 +53,7 @@ function getNavBar(){
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 			</button>
-						<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
+						<a class="navbar-brand" href="#"><img src="../img/garage_logo_final2.jpg" /></a>
 					</div>
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
