@@ -14,40 +14,176 @@
 
 <body>
 	<header>
-		<?php
-			include 'file.getNavBar.php';
-			getNavBar();
-		?>
-	</header>
-
-	<!--TODO: fill in info paragraph with details-->
-	<div class="container">
-		<div class="col-sm-8 text-left">
-			<h1>Welcome</h1>
-			<p>Paragraph about us!</p>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-			<hr>
-		</div>
-		<div class="col-sm-4 sidenav">
-			<div class="well text-center">
-				<h3>Login</h3>
-				<form action="#" method="post">
-					<div class="input-group">
-						<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-						<input id="username" type="text" class="form-control" name="username" placeholder="Username">
-					</div>
-					<div class="input-group">
-						<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-						<input id="password" type="password" class="form-control" name="password" placeholder="Password">
-					</div>
-					<button class="btn btn-default btn-login pull-right" type="submit">Login</button>
-					<span class="clearfix"></span>
-				</form>
+		<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
+			<div class="container-flex">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+					<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
+				</div>
+				<div class="collapse navbar-collapse" id="MyNavbar">
+					<ul class="nav navbar-nav navbar float-left">
+						<li class="active">
+							<a href="#">Home</a>
+						</li>
+						<li role="separator" class="divider"></li>
+						<li><a href="">Sales</a></li>
+						<li role="separator" class="divider"></li>
+						<li><a href="">Items</a></li>
+						<li role="separator" class="divider"></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="#">
+								<form class="navbar-form navbar-right" role="search">
+									<div class="input-group">
+										<input id="search" type="text" class="form-control" placeholder="Search" name="search">
+										<div class="input-group-btn">
+											<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+										</div>
+									</div>
+								</form>
+							</a>
+						</li>
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="#">My Sales</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">My Items</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Prefered Items</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">One more separated link</a></li>
+							</ul>
+						</li>
+						<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+					</ul>
+				</div>
 			</div>
-			<!--FUTURE: dynamic list of sales near your or searched for items?-->
-		</div>
-	</div>
-	<div class="container">
+		</nav>
+	</header>
+	<style>
+	body {
+	padding-top: 8em;
+}
+
+.separator {
+	border-bottom: #526747 5px solid;
+}
+
+.btn-login {
+	color: #fff;
+	background-color: #526747;
+	border-color: #ccc;
+	padding: .5em 3em;
+}
+
+.btn-login:hover {
+	color: #fff;
+	background-color: #234214;
+	border-color: #ccc;
+}
+
+.navbar {
+	margin-bottom: 0;
+	border-radius: 0;
+	background-color: #234214;
+	color: #fff;
+	padding: .5% 0;
+	font-size: 1.1em;
+	border-left: none;
+	border-right: none;
+	border-bottom: #526747 5px solid;
+}
+
+.navbar-inverse .navbar-collapse {
+	border-color: #526747;
+}
+
+.navbar-brand {
+	float: left;
+	/*min-height: 55px;*/
+	padding: 0 15px 5px;
+}
+
+.navbar-inverse .navbar-nav .active a,
+.navbar-inverse .navbar-nav .active a:focus,
+.navbar-inverse .navbar-nav .active a:hover {
+	color: #fff;
+	background-color: #234214;
+}
+
+.navbar-brand img {
+	width: 5.8em;
+}
+
+.navbar-inverse .navbar-nav>.open>a,
+.navbar-inverse .navbar-nav>.open>a:focus,
+.navbar-inverse .navbar-nav>.open>a:hover {
+	color: #fff;
+	background-color: #234214;
+}
+
+.nav {
+	margin-bottom: 0;
+	border-radius: 0;
+	background-color: #234214;
+	color: #fff;
+	padding: .5% 0;
+	font-size: 1.1em;
+	border: none;
+}
+
+.navbar-header {
+	min-height: 3.8em;
+}
+
+.navbar-inverse .navbar-toggle:focus,
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #526747;
+}
+
+.navbar-inverse .navbar-toggle {
+	border-color: #fff;
+}
+
+.navbar-form {
+	padding: 0;
+	margin-top: -.4em;
+}
+
+.container-flex {
+	max-width: 1200px !important;
+	margin: auto;
+}
+
+footer {
+	color: #fff;
+	background-color: #234214;
+	border-color: #ccc;
+}
+
+.collapse-header {
+	display: inline;
+	font-weight: bold;
+	color: #234214;
+}
+
+.collapse-header-text {
+	display: inline
+}
+
+.dropdown-caret {
+	color: #234214;
+	margin-top: .5em;
+}
+</style>
+<div class="container">
 		<div class="well">
 			<h3>Sales Near You</h3>
 			<ul class="list-group">
@@ -78,18 +214,3 @@
 			</ul>
 		</div>
 	</div>
-	<!--TODO: fill in contact info-->
-	<footer>
-		<div class="container text-center">
-			<h4>Contact Us</h4>
-			<div>
-				<div class="contact-info">Phone Number: <span class="glyphicon glyphicon-earphone"></span></div>
-				<div class="contact-info">Email Address: <span class="glyphicon glyphicon-envelope"></span></div>
-			</div>
-		</div>
-
-	</footer>
-
-</body>
-
-</html>
