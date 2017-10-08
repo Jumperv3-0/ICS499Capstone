@@ -1,6 +1,6 @@
 <?php
 class User {
-    public function User($username, $email, $password, $city, $street, $zip, $phonenumber, $fname, $lname) {
+  public function User($username, $email, $password, $city, $street, $zip, $phonenumber, $fname, $lname) {
 		$this->username = $username;
 		$this->email = $email;
 		$this->password = $password;
@@ -22,14 +22,16 @@ class Item {
 		$this->keyword = $keyword;
 	}
 }
+
 //pull "location" from google maps. Otherwise replace with: City, Street, Zip.
 class GarageSale {
-	public function GarageSale ($image, $description, $date, $location, $items, $user)
+	public function GarageSale ($image, $description, $date, $location, $items, $user) {
 		$this->image = $image;
 		$this->description = $description;
 		$this->date = $date;
 		$this->location = $location;
 		$this->items = $items;
 		$this->user = $user;
+	}
 }
 ?>
