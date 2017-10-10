@@ -16,7 +16,7 @@ function getNavBar(){
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
 							<li class="active">
-								<a href="#">Home</a>
+								<a href="index.php">Home</a>
 							</li>
 							<li role="separator" class="divider"></li>
 							<li><a href="">Sales</a></li>
@@ -58,12 +58,12 @@ function getNavBar(){
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
 							<li class="active">
-								<a href="#">Home</a>
+								<a href="index.php">Home</a>
 							</li>
 							<li role="separator" class="divider"></li>
-							<li><a href="">Sales</a></li>
+							<li><a href="other sales.html">Sales</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="">Items</a></li>
+							<li><a href="items.html">Items</a></li>
 							<li role="separator" class="divider"></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
@@ -82,13 +82,11 @@ function getNavBar(){
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
 								<ul class="dropdown-menu">
-									<li><a href="#">My Sales</a></li>
+									<li><a href="Your sales.html">My Sales</a></li>
 									<li role="separator" class="divider"></li>
 									<li><a href="#">My Items</a></li>
 									<li role="separator" class="divider"></li>
 									<li><a href="#">Prefered Items</a></li>
-									<li role="separator" class="divider"></li>
-									<li><a href="#">One more separated link</a></li>
 								</ul>
 							</li>
 							<li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
