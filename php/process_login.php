@@ -1,8 +1,8 @@
 <?php
 	require_once 'db_connection.php';
+	require_once 'functions.php';
 
-	$instance = SqlManager::getInstance();
-	$conn = $instance->getConnection();
+	$db = SqlManager::getInstance();
 
 
 
