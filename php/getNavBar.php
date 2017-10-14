@@ -1,9 +1,9 @@
 <?php
 function getNavBar(){
-	$logincookie = true;
+	$logincookie = false;
 	if($logincookie == false) {
 		echo '<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-				<div class="container">
+				<div class="container-flex">
 					<div class="navbar-header">
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -11,17 +11,18 @@ function getNavBar(){
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 			</button>
-						<a class="navbar-brand" href="#"><img src="../img/garage_logo_final2.jpg" /></a>
+						<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
 					</div>
+					<li><a href="createAccount.php">Create Account</a></li>
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
 							<li class="active">
-								<a href="index.php">Home</a>
+								<a href="#">Home</a>
 							</li>
 							<li role="separator" class="divider"></li>
-							<li><a href="">Sales</a></li>
+							<li><a href="otherSales.php">Sales</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="">Items</a></li>
+							<li><a href="items.php">Items</a></li>
 							<li role="separator" class="divider"></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
@@ -45,7 +46,7 @@ function getNavBar(){
 	}
 	if($logincookie == true) {
 		echo '<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-				<div class="container">
+				<div class="container-flex">
 					<div class="navbar-header">
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 			<span class="sr-only">Toggle navigation</span>
@@ -53,17 +54,17 @@ function getNavBar(){
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 			</button>
-						<a class="navbar-brand" href="#"><img src="../img/garage_logo_final2.jpg" /></a>
+						<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
 					</div>
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
 							<li class="active">
-								<a href="index.php">Home</a>
+								<a href="#">Home</a>
 							</li>
 							<li role="separator" class="divider"></li>
-							<li><a href="other sales.html">Sales</a></li>
+							<li><a href="">Sales</a></li>
 							<li role="separator" class="divider"></li>
-							<li><a href="items.html">Items</a></li>
+							<li><a href="">Items</a></li>
 							<li role="separator" class="divider"></li>
 						</ul>
 						<ul class="nav navbar-nav navbar-right">
@@ -82,11 +83,13 @@ function getNavBar(){
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
 								<ul class="dropdown-menu">
-									<li><a href="Your sales.html">My Sales</a></li>
+									<li><a href="#">My Sales</a></li>
 									<li role="separator" class="divider"></li>
 									<li><a href="#">My Items</a></li>
 									<li role="separator" class="divider"></li>
 									<li><a href="#">Prefered Items</a></li>
+									<li role="separator" class="divider"></li>
+									<li><a href="#">One more separated link</a></li>
 								</ul>
 							</li>
 							<li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
