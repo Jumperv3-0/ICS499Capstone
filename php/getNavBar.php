@@ -11,9 +11,8 @@ function getNavBar(){
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 			</button>
-						<a class="navbar-brand" href="#"><img src="img/garage_logo_final.png" /></a>
+						<a class="navbar-brand" href="#"><img src="../img/garage_logo_final.png" /></a>
 					</div>
-					<li><a href="createAccount.php">Create Account</a></li>
 					<div class="collapse navbar-collapse" id="MyNavbar">
 						<ul class="nav navbar-nav navbar float-left">
 							<li class="active">
@@ -38,7 +37,8 @@ function getNavBar(){
 									</form>
 								</a>
 							</li>
-							<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+							<li><a href="#"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
+							<li><a href="createAccount.php">Create Account</a></li>
 						</ul>
 					</div>
 				</div>
