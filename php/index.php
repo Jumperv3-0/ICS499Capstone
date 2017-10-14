@@ -20,12 +20,12 @@
 		?>
 	</header>
 
-	<!--TODO: fill in info paragraph with details-->
 	<div class="container">
 		<div class="col-sm-8 text-left">
 			<h1>Welcome</h1>
 			<p>Paragraph about us!</p>
-			<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+			<p>We At G=Sale have a simple goal. That goal is to help connect those wishing to sell their unneeded possessions to those who are looking for deals cutting out the middleman. A trade between neighbors. You might be hard on for cash. Or your looking to unburden yourself with unnecessary things you have gathered over the years. Regardless of your sepenstance you can create an account and set up your garage sale for free!
+			Or maybe you are looking for a old, no longer sold in stores item. or you just want to save some cash picking up a hand me down dresser. You don't need an account just simply check out our Sales page to find garage that are live near you. Or you can search by specific keyword if you already know what you're looking for.</p>
 			<hr>
 		</div>
 		<div class="col-sm-4 sidenav">
@@ -78,18 +78,12 @@
 			</ul>
 		</div>
 	</div>
-	<!--TODO: fill in contact info-->
+
 	<footer>
-		<div class="container text-center">
-			<h4>Contact Us</h4>
-			<div>
-				<div class="contact-info">Phone Number: <span class="glyphicon glyphicon-earphone"></span></div>
-				<div class="contact-info">Email Address: <span class="glyphicon glyphicon-envelope"></span></div>
-			</div>
-		</div>
-
+		<?php
+			include 'getFooter.php';
+			getFooter();
+		?>
 	</footer>
-
 </body>
-
 </html>
