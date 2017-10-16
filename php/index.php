@@ -46,11 +46,11 @@
                                 $validation = $validator->check($_POST, array(
                                     'username' => array('required' => true),
                                     'password' => array('required' => true)));
-                                if ($validation->passed()) {  // login user
-                                   $user = new User();
+                                if ($validation->passed()) {  // input is valid
+                                    $user = new User();
                                     $login = $user->login(sanitizeInput($_POST['username']), sanitizeInput($_POST['password']));
                                     if ($login) {
-                                        echo "You logged in!";
+                                        Redirect::page('yourSales.php');
                                     } else {
                                         echo "Login failed.";
                                     }
