@@ -65,6 +65,10 @@ class User {
     public function isLoggedIn() {
         return $this->isLoggedIn;
     }
+
+    public function logout() {
+        Session::delete($this->sessionName);
+    }
 }
 
 class Item {
@@ -279,7 +283,7 @@ CONTENT;
 											<li><a href="#">One more separated link</a></li>
 										</ul>
 									</li>
-									<li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+									<li><a href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
 									</ul>
 								</div>
 							</div>
