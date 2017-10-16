@@ -55,12 +55,22 @@ class User {
      * @param  string [$password = null] password submitted by user
      * @return boolean  true if loggin was successful, else false
      */
-    public function login($username = null, $password = null) {
+    public function login($username = null, $password = null, $remember) {
         $user = $this->find($username);
 
         if ($user) {
             if(password_verify($password, $this->data()->password)) {
                 Session::put($this->sessionName, $this->data()->user_id);
+                if ($remember) {
+                    $hash = hash('sha256', uniqid() . mcrypt_create_iv());
+                    $hashCheck = $this->db_conn->query("SELECT * FROM login_attempts WHERE user_fk_id = ?", array($this->data()->user_id));
+                    if (!$hashCheck->getCount()) {
+                        $this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, )")
+                    }
+
+
+                    $cookie = new cookie
+                }
                 return true;
             }
         }
@@ -412,53 +422,62 @@ CONTENT;
 	}
 
     /**
-     * To be implemented by subclasses
+     * TODO: To be implemented by subclasses
      */
-    abstract protected function getTable() {
-
-    }
+    abstract protected function getTable();
 
     /**
-     * To be implemented by subclasses
+     * TODO: To be implemented by subclasses
      */
-    abstract protected function getTableData() {
-
-    }
+    abstract protected function getTableData();
 }
 
+ /**
+  * TODO: To be implemented by subclasses
+  */
 class IndexPage extends PageBuilder {
     protected function getTable() {
 
     }
-}
 
+    protected function getTableData() {
+
+    }
+}
+ /**
+  * TODO: To be implemented by subclasses
+  */
 class RegisterPage extends PageBuilder {
     protected function getTable() {
 
     }
 
-    abstract protected function getTableData() {
+    protected function getTableData() {
 
     }
 
 }
-
+ /**
+  * TODO: To be implemented by subclasses
+  */
 class SalesPage extends PageBuilder {
     protected function getTable() {
 
     }
 
-    abstract protected function getTableData() {
+    protected function getTableData() {
 
     }
 }
-
+ /**
+  * TODO: To be implemented by subclasses
+  */
 class ItemsPage extends PageBuilder {
     protected function getTable() {
 
     }
 
-    abstract protected function getTableData() {
+    protected function getTableData() {
 
     }
 }
@@ -658,6 +677,28 @@ class Session {
         } else {
             self::put($name, $message);
         }
+    }
+}
+
+class cookie {
+
+    public static function exists($name) {
+        return (isset($_COOKIE[$name])) ? true : false;
+    }
+
+    public static function get($name) {
+        return $_COOKIE[$name];
+    }
+
+    public static function put($name, $value, $expiry) {
+        if (setcookie($name, $value, time() + $expiry, '/')) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function delete($name) {
+        self::put($name, '' , time()-1);
     }
 }
 
