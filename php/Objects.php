@@ -4,10 +4,25 @@ require_once 'db_connection.php';
 
 class User {
     private $db_conn,
-            $data;
+            $data,
+            $sessionName,
+            $isLoggedIn;
 
     public function __construct($user = null) {
         $this->db_conn = SqlManager::getInstance();
+        $this->sessionName = $GLOBALS['config']['session']['session_name'];
+        if (!$user) {
+            if (Session::exists($this->sessionName)) {
+                $user = Session::get($this->sessionName);
+                if ($this->find($user)) {
+                    $this->isLoggedIn = true;
+                } else {
+                    // process logout
+                }
+            }
+        } else {
+            $this->find($user);
+        }
     }
 
     public function create($params = array()) {
@@ -19,20 +34,36 @@ class User {
 
     public function login($username = null, $password = null) {
         $user = $this->find($username);
+
+        if ($user) {
+            if(password_verify($password, $this->data()->password)) {
+                Session::put($this->sessionName, $this->data()->user_id);
+                return true;
+            }
+        }
         return false;
     }
 
     public function find($user = null) {
         if ($user != null) {
-            $field = (is_numeric($user)) ? 'id' : 'username';
-            $sql = 'SELECT * FROM users WHERE ? = ?';
-            $params = array($field, $user);
+            $field = (is_numeric($user)) ? 'user_id' : 'username';
+            $sql = "SELECT * FROM users WHERE " . $field . " = ?";
+            $params = array($user);
             $result = $this->db_conn->query($sql, $params);
-
             if ($result->getCount() > 0) {
+                $this->data = $result->getResult()[0];
                 return true;
             }
         }
+        return false;
+    }
+
+    public function data() {
+        return $this->data;
+    }
+
+    public function isLoggedIn() {
+        return $this->isLoggedIn;
     }
 }
 
@@ -110,7 +141,8 @@ abstract class PageBuilder {
 		$this->active = '';
 		$this->title = '';
 		$this->header = '';
-		$this->logged_in = false; // TODO: change to dynamic
+        $user = new User();
+		$this->logged_in = $user->isLoggedIn(); // TODO: change to dynamic
 		$array = explode('/', sanitizeInput($_SERVER['PHP_SELF']));
 		$page_name = array_pop($array);
 		switch($page_name) {
@@ -119,8 +151,8 @@ abstract class PageBuilder {
 				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
 				echo $this->header;
 				break;
-			case "Your sales.php":
-				$this->active = 'Your sales';
+			case "yourSales.php":
+				$this->active = 'yourSales';
 				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
 				echo $this->header;
 				break;
@@ -130,12 +162,12 @@ abstract class PageBuilder {
 				echo $this->header;
 				break;
 			case "createAccount.php":
-				$this->active = 'index';
+				$this->active = 'createAccount';
 				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
 				echo $this->header;
 				break;
-			case "other sales.php":
-				$this->active = 'index';
+			case "otherSales.php":
+				$this->active = 'otherSales';
 				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
 				echo $this->header;
 				break;
@@ -309,6 +341,14 @@ class RegisterPage extends PageBuilder {
 
 }
 
+class SalesPage extends PageBuilder {
+
+}
+
+class ItemsPage extends PageBuilder {
+
+}
+
 /**
  * Class is used to vaidate user input and return any errors
  * in the input if any exist.
@@ -458,37 +498,5 @@ class Session {
         }
     }
 }
-
-
-/**
-	class SessionManager() {
-		private $cookie;
-		private $session_name;
-		$secure = SECURE;
-    // This stops JavaScript being able to access the session id.
-		$httponly = true;
-
-		public __construct() {
-			$this->session_name = 'sec_session_id'; // need to change to random/custom session id
-			if (ini_set('session.use_only_cookies', 1) === false) {
-				header("Location: index.php?err=true");
-				exit();
-			}
-			$cookieParams = session_get_cookie_params();
-			session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
-			session_name($session_name);
-			session_start();
-			session_regenerate_id();
-		}
-
-		public RemoveSession() {
-
-		}
-
-		public validateSession() {
-
-		}
-	}
-	**/
 
 ?>
