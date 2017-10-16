@@ -1,6 +1,7 @@
 <?php
 	require_once 'db_config.php';
     session_start();
+    session_regenerate_id();
 	$GLOBALS['config'] = array(
         'remember' => array(
             'cookie_name' => 'hash',
@@ -11,16 +12,3 @@
             'token_name' => 'token'
         )
     );
-//    $session_name = 'user'; // Set a custom session name
-//	$secure = SECURE;
-//	$httpOnly = true;
-//
-//	if (ini_set('session.use_only_cookies', 1) === FALSE) {
-//		header("Location: 404.php?error=Please enable cookies");
-//		exit();
-//	}
-//	$cookieParams = session_get_cookie_params();
-//	session_set_cookie_params($cookieParams['lifetime'], $cookieParams['path'], $cookieParams['domain'], $secure, $httpOnly);
-//	session_name($session_name);
-
-//	session_regenerate_id();
