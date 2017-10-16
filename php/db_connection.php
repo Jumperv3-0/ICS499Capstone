@@ -91,5 +91,5 @@
 		$db->getCount(); // get the number of rows returned
 		$db->getResult(); // get array of result
 		$db->getError(); // returns true if quary did not run else false
-	*/
+	/**/
 ?>
