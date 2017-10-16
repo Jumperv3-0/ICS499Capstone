@@ -6,7 +6,7 @@
 
 	<head>
 		<title>
-			<?php IndexPage::getTitle() ?>
+			<?php PageBuilder::getTitle() ?>
 		</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,8 +22,6 @@
 			<?php
 			$pageBuilder = new IndexPage();
 			$pageBuilder->getHeader();
-//			include 'getNavBar.php';
-//			getNavBar();
 		?>
 		</header>
 
@@ -86,10 +84,9 @@
 		</div>
 
 		<footer>
-			<?php
-			include 'getFooter.php';
-			getFooter();
-		?>
+		    <?php
+                PageBuilder::getFooter();
+            ?>
 		</footer>
 	</body>
 
