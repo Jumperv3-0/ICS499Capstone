@@ -50,7 +50,8 @@
                                     'password' => array('required' => true)));
                                 if ($validation->passed()) {  // input is valid
                                     $user = new User();
-                                    $login = $user->login(sanitizeInput($_POST['username']), sanitizeInput($_POST['password']));
+                                    $remember = (sanitizeInput($_POST['remember']) === 'on') ? true : false;
+                                    $login = $user->login(sanitizeInput($_POST['username']), sanitizeInput($_POST['password']), $remember);
                                     if ($login) {
                                         Redirect::page('yourSales.php');
                                     } else {
@@ -76,6 +77,9 @@
 							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
 							<input id="password" type="password" class="form-control" name="password" placeholder="Password">
 						</div>
+                        <label for="remember">
+                            <input type='checkbox' name="remember" id="remember">Remember me
+                        </label>
 						<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
 						<button name="login" class="btn btn-default btn-login pull-right" type="submit">Login</button>
 						<span class="clearfix"></span>
