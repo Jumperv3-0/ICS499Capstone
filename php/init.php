@@ -1,5 +1,6 @@
 <?php
 	require_once 'db_config.php';
+    session_start();
 	$GLOBALS['config'] = array(
         'remember' => array(
             'cookie_name' => 'hash',
@@ -21,5 +22,5 @@
 //	$cookieParams = session_get_cookie_params();
 //	session_set_cookie_params($cookieParams['lifetime'], $cookieParams['path'], $cookieParams['domain'], $secure, $httpOnly);
 //	session_name($session_name);
-	session_start();
+
 //	session_regenerate_id();
