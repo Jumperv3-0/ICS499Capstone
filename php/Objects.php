@@ -2,12 +2,26 @@
 require_once 'functions.php';
 require_once 'db_connection.php';
 
+/**
+ * User class that contains user data and controles user loggin and logout
+ */
 class User {
     private $db_conn,
             $data,
             $sessionName,
             $isLoggedIn;
 
+    /**
+     * Constructor that checks to see if user is logged in, if
+     * user is logged in it returns that user therewise constructor
+     * searches for user from db. eg $user = new User() // gets current
+     * user thats logged in if there is one, or $user = new User(4)
+     * // gets user a user_id = 4 from db, or $user = new User('id4766wa')
+     * // gets user with a username = id4766wa from db.
+     * @param string [$user = null] leave blank to get current user,
+     * otherwise give it a param of a user_id or a username.
+     * @author Gary
+     */
     public function __construct($user = null) {
         $this->db_conn = SqlManager::getInstance();
         $this->sessionName = $GLOBALS['config']['session']['session_name'];
@@ -16,8 +30,6 @@ class User {
                 $user = Session::get($this->sessionName);
                 if ($this->find($user)) {
                     $this->isLoggedIn = true;
-                } else {
-                    // process logout
                 }
             }
         } else {
@@ -25,6 +37,10 @@ class User {
         }
     }
 
+    /**
+     * Creates a new user in the database from an array of parameters
+     * @param array paramerter values
+     */
     public function create($params = array()) {
         $sql = "INSERT INTO users (user_id, username, password, fname, lname, email, phone_number, places_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
         if (!$this->db_conn->query($sql, $params)) {
@@ -32,6 +48,13 @@ class User {
         }
     }
 
+    /**
+     * Verifies user loggin informantion is correct then creates session
+     * @author Gary
+     * @param  string [$username = null] username submitted by user
+     * @param  string [$password = null] password submitted by user
+     * @return boolean  true if loggin was successful, else false
+     */
     public function login($username = null, $password = null) {
         $user = $this->find($username);
 
@@ -44,6 +67,12 @@ class User {
         return false;
     }
 
+    /**
+     * Searches db for user
+     * @author Gary
+     * @param  string [$user = null] enter a user_id or username to search
+     * @return boolean  true if a user match was found else false
+     */
     public function find($user = null) {
         if ($user != null) {
             $field = (is_numeric($user)) ? 'user_id' : 'username';
@@ -58,20 +87,37 @@ class User {
         return false;
     }
 
+    /**
+     * Gets user data information
+     * @author Gary
+     * @return array of data about user from db
+     */
     public function data() {
         return $this->data;
     }
 
+    /**
+     * Checks to see if user is logged in
+     * @author Gary
+     * @return boolean true if user is logged in, else false
+     */
     public function isLoggedIn() {
         return $this->isLoggedIn;
     }
 
+    /**
+     * Causes the user to logout
+     * @author Gary
+     */
     public function logout() {
         Session::delete($this->sessionName);
     }
 }
 
-class Item {
+/**
+ * Class represents an item for sale
+ */
+class Item { // TODO: need to implement
 	private $db_conn;
 
     public function __construct($item = null) {
@@ -86,7 +132,10 @@ class Item {
     }
 }
 
-class Place {
+/**
+ * Class represents a place
+ */
+class Place { // TODO: need to implement
     private $db_conn;
 
     public function __construct($place = null) {
@@ -101,8 +150,10 @@ class Place {
     }
 }
 
-//pull "location" from google maps. Otherwise replace with: City, Street, Zip.
-class GarageSale {
+/**
+ * Class represents a garageSale
+ */
+class GarageSale { // TODO: need to implement
 	 private $db_conn;
 
     public function __construct($place = null) {
@@ -117,8 +168,16 @@ class GarageSale {
     }
 }
 
-
+/**
+ * Class to redirect you to a different page.
+ */
 class Redirect {
+    /**
+     * Redirects to page given as parameter
+     * eg. Redirect::page('index.php');
+     * @author Gary
+     * @param string [$location = null] page to go to
+     */
     public static function page($location = null) {
         if ($location != null) {
             if(is_numeric($location)) {
@@ -137,10 +196,15 @@ class Redirect {
     }
 }
 
-
+/**
+ * Abstract class PageBuilder that has methods to the navbar, footer, and tables.
+ */
 abstract class PageBuilder {
-	//$session_validator; // TODO: used to check if session if valid or needs to start
-
+	/**
+	 * Gets the navbar for the page
+	 * eg. PageBuilder::getHeader();
+	 * @author Gary
+	 */
 	public function getHeader() {
 		$this->active = '';
 		$this->title = '';
@@ -183,6 +247,11 @@ abstract class PageBuilder {
 		}
 	}
 
+	/**
+	 * Gets the footer for the page
+	 * eg. PageBuilder::getFooter();
+	 * @author Gary
+	 */
 	static function getFooter() {
 	echo <<<CONTENT
 		<div class="container text-center">
@@ -195,6 +264,11 @@ abstract class PageBuilder {
 CONTENT;
     }
 
+	/**
+	 * Gets the tile for the page
+	 * eg. PageBuilder::getTitle();
+	 * @author Gary
+	 */
 	static function getTitle() {
 		$array = explode('/', sanitizeInput($_SERVER['PHP_SELF']));
 		$page_name = array_pop($array);
@@ -203,6 +277,14 @@ CONTENT;
 		echo $title . " | GSale";
 	}
 
+	/**
+	 * Makes the header for the page
+	 * @author Gary
+	 * @param  string $active    sets the active class in header so user can tell what page they are on
+	 * @param  string $title     of page
+	 * @param  boolean $logged_in true if the user is logged in else false
+	 * @return string html text for header
+	 */
 	protected function makeHeader($active, $title, $logged_in) {
 		$header = '';
 		if (!$logged_in) {
@@ -294,8 +376,8 @@ CONTENT;
 
 	/**
 	 *
-	 * @param  [[Type]] $active [[Description]]
-	 * @return [[Type]] [[Description]]
+	 * @param  string $active page
+	 * @return string html of with class of active page
 	 */
 	protected function getActive($active) {
 		$html = '';
@@ -330,27 +412,55 @@ CONTENT;
 	}
 
     /**
-     *
+     * To be implemented by subclasses
      */
-    protected function getTable() {
+    abstract protected function getTable() {
+
+    }
+
+    /**
+     * To be implemented by subclasses
+     */
+    abstract protected function getTableData() {
 
     }
 }
 
 class IndexPage extends PageBuilder {
+    protected function getTable() {
 
+    }
 }
 
 class RegisterPage extends PageBuilder {
+    protected function getTable() {
+
+    }
+
+    abstract protected function getTableData() {
+
+    }
 
 }
 
 class SalesPage extends PageBuilder {
+    protected function getTable() {
 
+    }
+
+    abstract protected function getTableData() {
+
+    }
 }
 
 class ItemsPage extends PageBuilder {
+    protected function getTable() {
 
+    }
+
+    abstract protected function getTableData() {
+
+    }
 }
 
 /**
@@ -372,7 +482,9 @@ class Validation {
     }
 
    /**
-    *
+    * Checks to make sure ever rule on input passed
+    * eg.
+    * @return Validation returns itself so you can check for errors
     */
     public function check($submit_method,  $tests = array()) {
         foreach($tests as $test => $rules) {
@@ -455,11 +567,25 @@ class Validation {
     }
 }
 
+/**
+ * Class represents a random token string to prevent cross site attacks
+ */
 class Token {
+    /**
+     * Generates a random token string
+     * @author Gary
+     * @return string token string generated
+     */
     public static function generate() {
         return Session::put($GLOBALS['config']['session']['token_name'], md5(uniqid()));
     }
 
+    /**
+     * Checks to see if two tokens match
+     * @author Gary
+     * @param  string $token to be checked
+     * @return boolean  true if tokens match, else false
+     */
     public static function check($token) {
         $tokenName = $GLOBALS['config']['session']['token_name'];
 
@@ -471,27 +597,59 @@ class Token {
     }
 }
 
-
+/**
+ * Class that handles seeion mangagement
+ */
 class Session {
-
+    /**
+     * Deletes a session variable
+     * @author Gary
+     * @param string $name of session var to delete
+     */
     public static function delete($name) {
         if(self::exists($name)) {
             unset($_SESSION[$name]);
         }
     }
 
+    /**
+     * Checks to see if a session exists
+     * @author Gary
+     * @param  string $name of session var to check
+     * @return boolean true if the session exists, else false
+     */
     public static function exists($name) {
         return (isset($_SESSION[$name])) ? true : false;
     }
 
+    /**
+     * Puts a value in session variable
+     * @author Gary
+     * @param  string $name  of session variable
+     * @param  string $value to put in session variable
+     * @return string value inserted
+     */
     public static function put($name, $value) {
         return $_SESSION[$name] = $value;
     }
 
+    /**
+     * Gets a session variable
+     * @author Gary
+     * @param  string $name of sesion variable to get
+     * @return string value of session variable
+     */
     public static function get($name) {
         return $_SESSION[$name];
     }
 
+    /**
+     * Sets a one time message
+     * @author Gary
+     * @param  string $name           of session variable
+     * @param  string [$message = ''] message to be saved
+     * @return string value of session variable
+     */
     public static function flash($name, $message = '') {
         if (self::exists($name)) {
             $session = self::get($name);
