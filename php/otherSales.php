@@ -24,14 +24,7 @@
             $pageBuilder->getHeader();
         ?>
 	</header>
-	<?php
-        $user = new User();
-        var_dump($user);
-        if ($user->isLoggedIn()) {
-            echo "logged in still!";
-        }
-    ?>
-<div class="container">
+    <div class="container">
 		<div class="well">
 			<h3>Sales Near You</h3>
 			<ul class="list-group">
