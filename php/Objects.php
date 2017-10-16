@@ -1,40 +1,107 @@
 <?php
 require_once 'functions.php';
+require_once 'db_connection.php';
+
 class User {
-  public function User($username, $email, $password, $city, $street, $zip, $phonenumber, $fname, $lname) {
-		$this->username = $username;
-		$this->email = $email;
-		$this->password = $password;
-		$this->city = $city;
-		$this->street = $street;
-		$this->zip = $zip;
-		$this->phonenumber = $phonenumber;
-		$this->fname = $fname;
-		$this->lname = $lname;
+    private $db_conn,
+            $data;
+
+    public function __construct($user = null) {
+        $this->db_conn = SqlManager::getInstance();
+    }
+
+    public function create($params = array()) {
+        $sql = "INSERT INTO users (user_id, username, password, fname, lname, email, phone_number, places_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
+        if (!$this->db_conn->query($sql, $params)) {
+            throw new Exception("Error creating account!");
+        }
+    }
+
+    public function login($username = null, $password = null) {
+        $user = $this->find($username);
+        return false;
+    }
+
+    public function find($user = null) {
+        if ($user != null) {
+            $field = (is_numeric($user)) ? 'id' : 'username';
+            $sql = 'SELECT * FROM users WHERE ? = ?';
+            $params = array($field, $user);
+            $result = $this->db_conn->query($sql, $params);
+
+            if ($result->getCount() > 0) {
+                return true;
+            }
+        }
     }
 }
 
 class Item {
-	public function Item ($image, $description, $price, $issold, $keyword) {
-		$this->image = $image;
-		$this->description = $description;
-		$this->price = $price;
-		$this->issold = $issold;
-		$this->keyword = $keyword;
-	}
+	private $db_conn;
+
+    public function __construct($item = null) {
+        $this->db_conn = SqlManager::getInstance();
+    }
+
+    public function create($params = array()) {
+        $sql = "";
+        if (!$this->db_conn->query($sql, $params)) {
+            throw new Exception("Error creating item!");
+        }
+    }
+}
+
+class Place {
+    private $db_conn;
+
+    public function __construct($place = null) {
+        $this->db_conn = SqlManager::getInstance();
+    }
+
+    public function create($params = array()) {
+       $sql = "INSERT INTO places (place_id, address, city, state, zip_code, country) VALUES (NULL, ?, ?, ?, ?, ?);";
+        if (!$this->db_conn->query($sql, $params)) {
+            throw new Exception("Error creating place!");
+        }
+    }
 }
 
 //pull "location" from google maps. Otherwise replace with: City, Street, Zip.
 class GarageSale {
-	public function GarageSale ($image, $description, $date, $location, $items, $user) {
-		$this->image = $image;
-		$this->description = $description;
-		$this->date = $date;
-		$this->location = $location;
-		$this->items = $items;
-		$this->user = $user;
-	}
+	 private $db_conn;
+
+    public function __construct($place = null) {
+        $this->db_conn = SqlManager::getInstance();
+    }
+
+    public function create($params = array()) {
+       $sql = "";
+        if (!$this->db_conn->query($sql, $params)) {
+            throw new Exception("Error creating Garage Sale!");
+        }
+    }
 }
+
+
+class Redirect {
+    public static function page($location = null) {
+        if ($location != null) {
+            if(is_numeric($location)) {
+                switch($location) {
+                    case 404:
+                        header('HTTP/1.0 404 Not Found');
+                        include '404.php';
+                        exit();
+                    break;
+                }
+            }
+            header('Location: ' . $location);
+            exit();
+        }
+
+    }
+}
+
 
 abstract class PageBuilder {
 	//$session_validator; // TODO: used to check if session if valid or needs to start
@@ -80,9 +147,17 @@ abstract class PageBuilder {
 		}
 	}
 
-	public function getFooter() {
-
-	}
+	static function getFooter() {
+	echo <<<CONTENT
+		<div class="container text-center">
+			<h4>Contact Us</h4>
+			<div>
+				<div class="contact-info">Phone Number: 612 978 5555<span class="glyphicon glyphicon-earphone"></span></div>
+				<div class="contact-info">Email Address: GSalesStaff@Gsales.net<span class="glyphicon glyphicon-envelope"></span></div>
+			</div>
+		</div>
+CONTENT;
+    }
 
 	static function getTitle() {
 		$array = explode('/', sanitizeInput($_SERVER['PHP_SELF']));
@@ -94,10 +169,10 @@ abstract class PageBuilder {
 
 	protected function makeHeader($active, $title, $logged_in) {
 		$header = '';
-		if ($logged_in) {
+		if (!$logged_in) {
 			$header = '
 						<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-							<div class="container-flex">
+							<div class="container">
 								<div class="navbar-header">
 									<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 										<span class="sr-only">Toggle navigation</span>
@@ -105,7 +180,7 @@ abstract class PageBuilder {
 										<span class="icon-bar"></span>
 										<span class="icon-bar"></span>
 									</button>
-								<a class="navbar-brand" href="#"><img src="../img/garage_logo_final.png" /></a>
+								<a class="navbar-brand" href="index.php"><img src="../img/garage_logo_final.png" /></a>
 								</div>
 								<div class="collapse navbar-collapse" id="MyNavbar">
 									<ul class="nav navbar-nav navbar float-left">
@@ -133,7 +208,7 @@ abstract class PageBuilder {
 		} else {
 			$header = '
 						<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
-							<div class="container-flex">
+							<div class="container">
 								<div class="navbar-header">
 									<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
 										<span class="sr-only">Toggle navigation</span>
@@ -163,7 +238,7 @@ abstract class PageBuilder {
 										<li class="dropdown">
 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
 										<ul class="dropdown-menu">
-											<li><a href="#">My Sales</a></li>
+											<li><a href="yourSales.php">My Sales</a></li>
 											<li role="separator" class="divider"></li>
 											<li><a href="#">My Items</a></li>
 											<li role="separator" class="divider"></li>
@@ -181,6 +256,11 @@ abstract class PageBuilder {
 		return $header;
 	}
 
+	/**
+	 *
+	 * @param  [[Type]] $active [[Description]]
+	 * @return [[Type]] [[Description]]
+	 */
 	protected function getActive($active) {
 		$html = '';
 		$active_index = '';
@@ -197,29 +277,188 @@ abstract class PageBuilder {
 			default:
 				$active_index = 0;
 		}
+
 		$pages = array('index.php', 'otherSales.php', 'items.php');
-		echo "count is: " . count($pages);
+        $selections = array('Home', 'Sales', 'Items');
 
 		for ($i = 0; $i < (count($pages) * 2); $i++ ) {
 			if ($i % 2 == 0 && $i == ($active_index * 2)) {
-				echo "active";
-				$html .= '<li class="active"><a href="' . $pages[$active_index] . '">' . $active . '</a></li>';
+				$html .= '<li class="active"><a href="' . $pages[$active_index] . '">' . $selections[$active_index] . '</a></li>';
 			} else if ($i % 2 == 0){
-				echo "noormal";
-				$html .= '<li class=""><a href="' . $pages[$active_index] . '">$active</a></li>';
+				$html .= '<li class=""><a href="' . $pages[($i * .5)] . '">' . $selections[($i * .5)] . '</a></li>';
 			} else {
-				echo "divider";
 				$html .= '<li role="separator" class="divider"></li>';
 			}
-			return $html;
 		}
+        return $html;
 	}
 
+    /**
+     *
+     */
+    protected function getTable() {
+
+    }
 }
 
 class IndexPage extends PageBuilder {
 
 }
+
+class RegisterPage extends PageBuilder {
+
+}
+
+/**
+ * Class is used to vaidate user input and return any errors
+ * in the input if any exist.
+ */
+class Validation {
+    private $passed,
+            $errors,
+            $db_conn;
+
+    /**
+     * Constructor that gets connection to db and intizes class variables
+     */
+    public function __construct() {
+        $this->passed = false;
+        $this->db_conn = SqlManager::getInstance();
+        $this->errors = array();
+    }
+
+   /**
+    *
+    */
+    public function check($submit_method,  $tests = array()) {
+        foreach($tests as $test => $rules) {
+            foreach($rules as $rule => $rule_value) {
+                $value = sanitizeInput($submit_method[$test]);
+                if ($rule === 'required' && empty($value)) {
+                    $this->addError("{$test} is required");
+                } else if(!empty($value)) {
+                    switch($rule) {
+                        case 'min':
+                            if (strlen($value) < $rule_value) {
+                                $this->addError("{$test} must be a minimum of {$rule_value} characters.");
+                            }
+                            break;
+                         case 'max':
+                            if (strlen($value) > $rule_value) {
+                                $this->addError("{$test} must be a maximum of {$rule_value} characters.");
+                            }
+                            break;
+                         case 'matches':
+                            if ($value != sanitizeInput($submit_method[$rule_value])) {
+                                $this->addError("{$rule_value} must match {$test}");
+                            }
+                            break;
+                         case 'unique':
+                            $check = $this->db_conn->query("SELECT * FROM {$rule_value} WHERE {$test} = '{$value}'", array());
+                            if ($check->getCount() > 0) {
+                                $this->addError("{$test} alread exists.");
+                            }
+                            break;
+                         case 'email':
+                            $email_address = sanitizeInput($submit_method[$rule]);
+                            if (!filter_var($email_address, FILTER_VALIDATE_EMAIL)) {
+                                $this->addError("{$test} was not a valid email.");
+                            }
+                            break;
+                         case 'phone':
+                            $phone_number = sanitizeInput($submit_method[$rule]);
+                            if (false) { //TODO: need to implement
+                                $this->addError("Phone number was not valid.");
+                            }
+                            break;
+                        case 'address': // TODO: need to implement
+
+                            break;
+                    }
+                }
+            }
+        }
+
+        if (empty($this->errors)) {
+            $this->passed = true;
+        }
+        return $this;
+    }
+
+    /**
+     * Adds an error to the list of errors
+     * @param string $error to be added to error array
+     */
+    private function addError($error) {
+        $this->errors[] = $error;
+    }
+
+    /**
+     * Gets the list of errors
+     * @return array of errors
+     */
+    public function getErrors() {
+        return $this->errors;
+    }
+
+    /**
+     * Returns true if all test on input were passed else
+     * it returns false.
+     * @return boolean true if passed, else false
+     */
+    public function passed() {
+        return $this->passed;
+    }
+}
+
+class Token {
+    public static function generate() {
+        return Session::put($GLOBALS['config']['session']['token_name'], md5(uniqid()));
+    }
+
+    public static function check($token) {
+        $tokenName = $GLOBALS['config']['session']['token_name'];
+
+        if (Session::exists($tokenName) && $token === Session::get($tokenName)) {
+            Session::delete($tokenName);
+            return true;
+        }
+        return false;
+    }
+}
+
+
+class Session {
+
+    public static function delete($name) {
+        if(self::exists($name)) {
+            unset($_SESSION[$name]);
+        }
+    }
+
+    public static function exists($name) {
+        return (isset($_SESSION[$name])) ? true : false;
+    }
+
+    public static function put($name, $value) {
+        return $_SESSION[$name] = $value;
+    }
+
+    public static function get($name) {
+        return $_SESSION[$name];
+    }
+
+    public static function flash($name, $message = '') {
+        if (self::exists($name)) {
+            $session = self::get($name);
+            self::delete($name);
+            return $session;
+        } else {
+            self::put($name, $message);
+        }
+    }
+}
+
 
 /**
 	class SessionManager() {
