@@ -1,4 +1,5 @@
 <?php
+    require_once 'init.php';
 	include_once 'Objects.php';
 ?>
 	<!DOCTYPE html>
@@ -19,12 +20,16 @@
 
 	<body>
 		<header>
-			<?php
-			$pageBuilder = new IndexPage();
-			$pageBuilder->getHeader();
-		?>
+            <?php
+                $pageBuilder = new IndexPage();
+                $pageBuilder->getHeader();
+            ?>
 		</header>
-
+        <?php
+            if (Session::exists('success')) {
+                echo '<div class="container">' . Session::flash('success') . '</div>';
+            }
+        ?>
 		<div class="container">
 			<div class="col-sm-8 text-left">
 				<h1>Welcome</h1>
@@ -33,9 +38,34 @@
 				<hr>
 			</div>
 			<div class="col-sm-4 sidenav">
+			    <?php
+                    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                        if (isset($_POST['login'])) {
+                            if (Token::check(sanitizeInput($_POST['token']))) {
+                                $validator = new Validation();
+                                $validation = $validator->check($_POST, array(
+                                    'username' => array('required' => true),
+                                    'password' => array('required' => true)));
+                                if ($validation->passed()) {  // login user
+                                   $user = new User();
+                                    $login = $user->login(sanitizeInput($_POST['username']), sanitizeInput($_POST['password']));
+                                    if ($login) {
+                                        echo "You logged in!";
+                                    } else {
+                                        echo "Login failed.";
+                                    }
+                                } else {
+                                    foreach($validation->getErrors() as $error) {
+                                        echo $error . '<br>';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ?>
 				<div class="well text-center">
 					<h3>Login</h3>
-					<form action="<?php echo htmlspecialchars('process_login.php');?>" method="post">
+					<form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
 						<div class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 							<input id="username" type="text" class="form-control" name="username" placeholder="Username">
@@ -44,7 +74,8 @@
 							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
 							<input id="password" type="password" class="form-control" name="password" placeholder="Password">
 						</div>
-						<button name="submit" class="btn btn-default btn-login pull-right" type="submit">Login</button>
+						<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+						<button name="login" class="btn btn-default btn-login pull-right" type="submit">Login</button>
 						<span class="clearfix"></span>
 					</form>
 				</div>
