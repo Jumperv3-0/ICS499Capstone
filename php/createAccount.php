@@ -2,10 +2,8 @@
 	require_once 'init.php';
     require_once 'Objects.php';
     require_once 'functions.php';
-    $user = new User();
-    if ($user->isLoggedIn()) {
-        Redirect::page('404.php');
-    }
+
+
 ?>
 	<!DOCTYPE html>
 	<html lang="en">
@@ -31,16 +29,16 @@
 		<div class="container">
 			<?php
 
-				if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-					if (isset($_POST['submit'])) {
-                        if (Token::check(sanitizeInput($_POST['token']))) {
-                            $validator = new Validation();
-                            $validation = $validator->check($_POST, array(
-                                'username' => array(
-                                    'required' => true,
-                                    'min' => 4,
-                                    'max' => 22,
-                                    'unique' => 'users'
+				if ($_SERVER['REQUEST_METHOD'] == 'POST') {                // check to see a form was submited by $_POST
+					if (isset($_POST['submit'])) {                         // check to see if data was submitted
+                        if (Token::check(sanitizeInput($_POST['token']))) {// protects agains resumitting form multiple times
+                            $validator = new Validation();                  // creates new validation object
+                            $validation = $validator->check($_POST, array(  // calles check function giving it submit type and an array of rules
+                                'username' => array(        // rules for username
+                                    'required' => true,     // cant be empty
+                                    'min' => 4,             // min length is 4 char
+                                    'max' => 22,            // max length is 22 char
+                                    'unique' => 'users'     // username must be unique in users table
                                 ),
                                 'password' => array(
                                     'required' => true,
@@ -51,7 +49,7 @@
                                     'required' => true,
                                     'min' => 6,
                                     'max' => 22,
-                                    'matches' => 'password'
+                                    'matches' => 'password' // password_again must match password
                                 ),
                                 'fname' => array(
                                     'required' => true,
@@ -67,27 +65,27 @@
                                     'required' => true,
                                     'min' => 10,
                                     'max' => 13,
-                                    'phone' => true
+                                    'phone' => true         // must be a phone number
                                 ),
                                 'email' => array(
                                     'required' => true,
                                     'min' => 2,
                                     'max' => 50,
-                                    'email' => true
+                                    'email' => true         // must be an email
                                 ),
                                 'address' => array(
                                     'required' => true,
                                     'min' => 2,
                                     'max' => 120,
-                                    'address' => true
+                                    'address' => true       // must be an address
                                 ),
                             ));
 
-                            if ($validation->passed()) { // create account for user
+                            if ($validation->passed()) { // create place then create user for user
                                 $user = new User();
                                 $place = new Place();
                                 try {
-                                     /*
+                                    /*
                                     // TODO: Break $_POST['address'] into address, city, state, zip, country
                                     $place->create(array(
 
