@@ -18,7 +18,7 @@
 			try {
 				$this->conn = new PDO('mysql:host=' . HOST . ';dbname=' . DATABASE, USER, PASSWORD); // creating db connection
 				$this->error = false;
-				$this->count = 0;
+				$this->numItemsReturned = 0;
 			} catch(PDOException $e) {
 					die("Connection failed: " . $e->getMessage());
 			}
