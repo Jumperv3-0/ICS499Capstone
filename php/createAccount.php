@@ -2,6 +2,10 @@
 	require_once 'init.php';
     require_once 'Objects.php';
     require_once 'functions.php';
+    $user = new User();
+    if ($user->isLoggedIn()) {
+        Redirect::page('404.php');
+    }
 ?>
 	<!DOCTYPE html>
 	<html lang="en">
