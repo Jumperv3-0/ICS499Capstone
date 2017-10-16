@@ -28,6 +28,8 @@
         <?php
             if (Session::exists('success')) {
                 echo '<div class="container">' . Session::flash('success') . '</div>';
+            } else if (Session::exists('logout')) {
+                echo '<div class="container">' . Session::flash('logout') . '</div>';
             }
         ?>
 		<div class="container">
