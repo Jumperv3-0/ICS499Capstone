@@ -9,7 +9,7 @@ class User {
     private $db_conn,
             $data,
             $sessionName,
-						$cookieName,
+            $cookieName,
             $isLoggedIn;
 
     /**
@@ -26,12 +26,14 @@ class User {
     public function __construct($user = null) {
         $this->db_conn = SqlManager::getInstance();
         $this->sessionName = $GLOBALS['config']['session']['session_name'];
-				$this->cookieName = $GLOBALS['config']['remember']['cookie_name'];
+        $this->cookieName = $GLOBALS['config']['remember']['cookie_name'];
         if (!$user) {
             if (Session::exists($this->sessionName)) {
                 $user = Session::get($this->sessionName);
                 if ($this->find($user)) {
                     $this->isLoggedIn = true;
+                } else {
+                    // process logout
                 }
             }
         } else {
@@ -57,28 +59,39 @@ class User {
      * @param  string [$password = null] password submitted by user
      * @return boolean  true if loggin was successful, else false
      */
-    public function login($username = null, $password = null, $remember) {
-        $user = $this->find($username);
-
-        if ($user) {
-            if(password_verify($password, $this->data()->password)) {
-                Session::put($this->sessionName, $this->data()->user_id);
-                if ($remember) {
-                    $hash = hash('sha256', uniqid() . mcrypt_create_iv(10));
-                    $hashCheck = $this->db_conn->query("SELECT * FROM login_attempts WHERE user_fk_id = ?", array($this->Data()->user_id));
-                    if (!$hashCheck->getCount()) {
-                        $this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, time_stamp, user_fk_id) VALUES (NULL, ?, ?, NULL, ?);", array('1', $hash, $this->Data()->user_id));
-                    } else {
-											$hash = $hashCheck->getResult()[0]->session_id;
-										}
-									Cookie::put($this->cookieName, $hash, $GLOBALS['config']['remember']['cookie_expire']);
-                }
-                return true;
-            } else {
-							$this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, time_stamp, user_fk_id) VALUES (NULL, ?, ?, NULL, ?);", array('0', '', $this->Data()->user_id));
-						}
+    public function login($username = null, $password = null, $remember = false) {
+        if (!$username && !$password && $this->exists()) {
+          Session::put($this->sessionName, $this->data()->user_id);
+        } else {
+          $user = $this->find($username);
+          if ($user) {
+              if(password_verify($password, $this->data()->password)) {
+                  Session::put($this->sessionName, $this->data()->user_id);
+                  if ($remember) {
+                      $hash = hash('sha256', uniqid() . random_bytes(10));
+                      $hashCheck = $this->db_conn->query("SELECT * FROM login_attempts WHERE user_fk_id = ?", array($this->data()->user_id));
+                      if (!$hashCheck->getCount()) {
+                          $this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, time_stamp, user_fk_id) VALUES (NULL, ?, ?, NULL, ?);", array('1', $hash, $this->data()->user_id));
+                      } else {
+                          $hash = $hashCheck->getResult()[0]->session_id;
+                      }
+                    Cookie::put($this->cookieName, $hash, $GLOBALS['config']['remember']['cookie_expire']);
+                  }
+                  return true;
+              }
+          }
         }
-        return false;
+                return false;
+    }
+
+    /**
+     * Checks to see if the user that calls this method has data
+     * and that the user exists in our db
+     * @author Gary
+     * @return boolean true if the user exists, else false
+     */
+    function exists() {
+      return (!empty($this->data)) ? true : false;
     }
 
     /**
@@ -303,7 +316,7 @@ CONTENT;
 		$header = '';
 		if (!$logged_in) {
 			$header = '
-						<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
+						<nav class="navbar navbar-expand navbar-inverse">
 							<div class="container">
 								<div class="navbar-header">
 									<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
@@ -339,7 +352,7 @@ CONTENT;
 						</nav>';
 		} else {
 			$header = '
-						<nav class="navbar navbar-expand navbar-inverse navbar-fixed-top">
+						<nav class="navbar navbar-expand navbar-inverse">
 							<div class="container">
 								<div class="navbar-header">
 									<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#MyNavbar">
@@ -428,30 +441,65 @@ CONTENT;
     /**
      * TODO: To be implemented by subclasses
      */
-    abstract protected function getTable();
+    abstract public function getContent();
 
-    /**
-     * TODO: To be implemented by subclasses
-     */
-    abstract protected function getTableData();
 }
 
  /**
   * TODO: To be implemented by subclasses
   */
 class IndexPage extends PageBuilder {
-    protected function getTable() {
+  private $user;
 
+  function __construct() {
+    $this->user = new User();
+  }
+
+
+  public function getContent() {
+    $welcomeSize = 12;
+    if (!$this->user->isLoggedIn()) {
+      $welcomeSize = 8;
+      $loginSize = 4;
+      $this->getWelcome($welcomeSize);
+      $this->getLogin($loginSize);
+    } else {
+      $this->getWelcome($welcomeSize);
     }
+    $this->getTable();
+  }
 
-    protected function getTableData() {
+  private function getTableData() {
 
-    }
+  }
+
+  private function getWelcome($size) {
+     echo "<div class='container'>
+				<div class='col-sm-{$size} text-left'>
+					<h1>Welcome</h1>
+					<p>Paragraph about us!</p>
+					<p>We At G=Sale have a simple goal. That goal is to help connect those wishing to sell their unneeded possessions to those who are looking for deals cutting out the middleman. A trade between neighbors. You might be hard on for cash. Or your looking to unburden yourself with unnecessary things you have gathered over the years. Regardless of your sepenstance you can create an account and set up your garage sale for free! Or maybe you are looking for a old, no longer sold in stores item. or you just want to save some cash picking up a hand me down dresser. You don\'t need an account just simply check out our Sales page to find garage that are live near you. Or you can search by specific keyword if you already know what you\'re looking for.</p>
+					<hr>
+				</div>";
+  }
+
+  private function getLogin() {
+
+  }
+
+  private function getTable() {
+
+  }
 }
  /**
   * TODO: To be implemented by subclasses
   */
 class RegisterPage extends PageBuilder {
+
+		public function getContent() {
+
+		}
+
     protected function getTable() {
 
     }
@@ -465,6 +513,10 @@ class RegisterPage extends PageBuilder {
   * TODO: To be implemented by subclasses
   */
 class SalesPage extends PageBuilder {
+		public function getContent() {
+
+		}
+
     protected function getTable() {
 
     }
@@ -477,6 +529,10 @@ class SalesPage extends PageBuilder {
   * TODO: To be implemented by subclasses
   */
 class ItemsPage extends PageBuilder {
+		public function getContent() {
+
+		}
+
     protected function getTable() {
 
     }
