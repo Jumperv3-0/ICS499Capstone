@@ -1,5 +1,4 @@
 body {
-	padding-top: 8em;
 }
 
 .separator {
@@ -115,4 +114,8 @@ footer {
 
 ul.nav.navbar-nav.navbar-right {
     padding-right: 1%;
+}
+
+.top-container {
+  padding-top: 2em;
 }
