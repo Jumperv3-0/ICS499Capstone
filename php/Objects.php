@@ -9,6 +9,7 @@ class User {
     private $db_conn,
             $data,
             $sessionName,
+						$cookieName,
             $isLoggedIn;
 
     /**
@@ -25,6 +26,7 @@ class User {
     public function __construct($user = null) {
         $this->db_conn = SqlManager::getInstance();
         $this->sessionName = $GLOBALS['config']['session']['session_name'];
+				$this->cookieName = $GLOBALS['config']['remember']['cookie_name'];
         if (!$user) {
             if (Session::exists($this->sessionName)) {
                 $user = Session::get($this->sessionName);
@@ -62,17 +64,19 @@ class User {
             if(password_verify($password, $this->data()->password)) {
                 Session::put($this->sessionName, $this->data()->user_id);
                 if ($remember) {
-                    $hash = hash('sha256', uniqid() . mcrypt_create_iv());
-                    $hashCheck = $this->db_conn->query("SELECT * FROM login_attempts WHERE user_fk_id = ?", array($this->data()->user_id));
+                    $hash = hash('sha256', uniqid() . mcrypt_create_iv(10));
+                    $hashCheck = $this->db_conn->query("SELECT * FROM login_attempts WHERE user_fk_id = ?", array($this->Data()->user_id));
                     if (!$hashCheck->getCount()) {
-                        $this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, )")
-                    }
-
-
-                    $cookie = new cookie
+                        $this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, time_stamp, user_fk_id) VALUES (NULL, ?, ?, NULL, ?);", array('1', $hash, $this->Data()->user_id));
+                    } else {
+											$hash = $hashCheck->getResult()[0]->session_id;
+										}
+									Cookie::put($this->cookieName, $hash, $GLOBALS['config']['remember']['cookie_expire']);
                 }
                 return true;
-            }
+            } else {
+							$this->db_conn->query("INSERT INTO login_attempts (attempt_id, attempt_success, session_id, time_stamp, user_fk_id) VALUES (NULL, ?, ?, NULL, ?);", array('0', '', $this->Data()->user_id));
+						}
         }
         return false;
     }
@@ -327,8 +331,8 @@ CONTENT;
 												</form>
 											</a>
 										</li>
-										<li><a href="#"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
 										<li><a href="createAccount.php">Create Account</a></li>
+										<li><a href="#"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
 									</ul>
 								</div>
 							</div>
@@ -542,7 +546,8 @@ class Validation {
                             break;
                          case 'phone':
                             $phone_number = sanitizeInput($submit_method[$rule]);
-                            if (false) { //TODO: need to implement
+														$phone_number = preg_replace('/\s+/', '', $phone_number);
+                            if (!is_numeric($phone_number)) { //TODO: need to implement
                                 $this->addError("Phone number was not valid.");
                             }
                             break;
