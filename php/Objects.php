@@ -546,8 +546,13 @@ class Validation {
                             break;
                          case 'phone':
                             $phone_number = sanitizeInput($submit_method[$rule]);
+<<<<<<< HEAD
 														$phone_number = preg_replace('/\s+/', '', $phone_number);
                             if (!is_numeric($phone_number)) { //TODO: need to implement
+=======
+                            $phone_number = preg_replace('/\s+/', '', $phone_number);  
+			    if (!is_numeric($phone_number)) {
+>>>>>>> b02d34f456149ac26583df0c593bef03c0c90d48
                                 $this->addError("Phone number was not valid.");
                             }
                             break;
