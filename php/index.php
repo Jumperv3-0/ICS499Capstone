@@ -20,27 +20,27 @@
 
 	<body>
 		<header>
-            <?php
+			<?php
                 $pageBuilder = new IndexPage();
                 $pageBuilder->getHeader();
             ?>
 		</header>
-        <?php
+		<?php
             if (Session::exists('success')) {
                 echo '<div class="container">' . Session::flash('success') . '</div>';
             } else if (Session::exists('logout')) {
                 echo '<div class="container">' . Session::flash('logout') . '</div>';
             }
         ?>
-		<div class="container">
-			<div class="col-sm-8 text-left">
-				<h1>Welcome</h1>
-				<p>Paragraph about us!</p>
-				<p>We At G=Sale have a simple goal. That goal is to help connect those wishing to sell their unneeded possessions to those who are looking for deals cutting out the middleman. A trade between neighbors. You might be hard on for cash. Or your looking to unburden yourself with unnecessary things you have gathered over the years. Regardless of your sepenstance you can create an account and set up your garage sale for free! Or maybe you are looking for a old, no longer sold in stores item. or you just want to save some cash picking up a hand me down dresser. You don't need an account just simply check out our Sales page to find garage that are live near you. Or you can search by specific keyword if you already know what you're looking for.</p>
-				<hr>
-			</div>
-			<div class="col-sm-4 sidenav">
-			    <?php
+			<div class="container">
+				<div class="col-sm-8 text-left">
+					<h1>Welcome</h1>
+					<p>Paragraph about us!</p>
+					<p>We At G=Sale have a simple goal. That goal is to help connect those wishing to sell their unneeded possessions to those who are looking for deals cutting out the middleman. A trade between neighbors. You might be hard on for cash. Or your looking to unburden yourself with unnecessary things you have gathered over the years. Regardless of your sepenstance you can create an account and set up your garage sale for free! Or maybe you are looking for a old, no longer sold in stores item. or you just want to save some cash picking up a hand me down dresser. You don't need an account just simply check out our Sales page to find garage that are live near you. Or you can search by specific keyword if you already know what you're looking for.</p>
+					<hr>
+				</div>
+				<div class="col-sm-4 sidenav">
+					<?php
                     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         if (isset($_POST['login'])) {
                             if (Token::check(sanitizeInput($_POST['token']))) {
@@ -66,65 +66,155 @@
                         }
                     }
                 ?>
-				<div class="well text-center">
-					<h3>Login</h3>
-					<form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
-						<div class="input-group">
-							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-							<input id="username" type="text" class="form-control" name="username" placeholder="Username">
-						</div>
-						<div class="input-group">
-							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-							<input id="password" type="password" class="form-control" name="password" placeholder="Password">
-						</div>
-                        <label for="remember">
+						<div class="well text-center">
+							<h3>Login</h3>
+							<form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
+								<div class="input-group">
+									<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+									<input id="username" type="text" class="form-control" name="username" placeholder="Username">
+								</div>
+								<div class="input-group">
+									<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+									<input id="password" type="password" class="form-control" name="password" placeholder="Password">
+								</div>
+								<label for="remember">
                             <input type='checkbox' name="remember" id="remember">Remember me
                         </label>
-						<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-						<button name="login" class="btn btn-default btn-login pull-right" type="submit">Login</button>
-						<span class="clearfix"></span>
-					</form>
+								<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+								<button name="login" class="btn btn-default btn-login pull-right" type="submit">Login</button>
+								<span class="clearfix"></span>
+							</form>
+						</div>
+						<!--FUTURE: dynamic list of sales near your or searched for items?-->
 				</div>
-				<!--FUTURE: dynamic list of sales near your or searched for items?-->
 			</div>
-		</div>
-		<div class="container">
-			<div class="well">
-				<h3>Sales Near You</h3>
-				<ul class="list-group">
-					<li data-toggle="collapse" href="#collapse1" class="list-group-item">
-						<h5 class="collapse-header">Location:</h5>
-						<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
-						<span class="caret dropdown-caret pull-right"></span>
-						<p id="collapse1" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					</li>
-					<li data-toggle="collapse" href="#collapse2" class="list-group-item">
-						<h5 class="collapse-header">Location:</h5>
-						<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
-						<span class="caret dropdown-caret pull-right"></span>
-						<p id="collapse2" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					</li>
-					<li data-toggle="collapse" href="#collapse3" class="list-group-item">
-						<h5 class="collapse-header">Location:</h5>
-						<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
-						<span class="caret dropdown-caret pull-right"></span>
-						<p id="collapse3" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					</li>
-					<li data-toggle="collapse" href="#collapse4" class="list-group-item">
-						<h5 class="collapse-header">Location:</h5>
-						<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
-						<span class="caret dropdown-caret pull-right"></span>
-						<p id="collapse4" class="collapse">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-					</li>
-				</ul>
+			<div class="container">
+				<h3>Near You</h3>
+				<div class="panel-group">
+					<div class="panel panel-default">
+						<div class="panel-heading" data-toggle="collapse" data-target="#collapse1">
+							<h4 class="panel-title">
+								<h5 class="collapse-header">Location:</h5>
+								<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
+								<span class="glyphicon glyphicon-chevron-down pull-right" aria-hidden="true"></span>
+							</h4>
+						</div>
+						<div id="collapse1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="row text-center">
+									<a class="" href="#">Name: Bob's Bouncy House</a>
+								</div>
+								<div class="row">
+									<div class="col-sm-2">
+										<img src="http://lorempixel.com/100/100/nightlife">
+									</div>
+									<div class="col-sm-4">
+										<h5 class="collapse-header">Date:</h5>
+										<p>Mon, Oct 16 - Sun, Oct 19</p>
+									</div>
+									<div class="col-sm-5">
+										<h5 class="collapse-header">Description:</h5>
+										<p>Huge garage sale with more than 30 families participating. Multiple classrooms/lunchroom will be utilized for the sale. Tons of kids and women's clothing, toys, books, Halloween costumes, Christmas decorations, home décor and furniture. Preview sale ($2 at door): October 19, 4-8pm General sale October 20, 10-6pm and October 21, 10-4pm Pictures to be added prior to sale date.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-heading" data-toggle="collapse" data-target="#collapse2">
+							<h4 class="panel-title">
+								<h5 class="collapse-header">Location:</h5>
+								<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
+								<span class="glyphicon glyphicon-chevron-down pull-right" aria-hidden="true"></span>
+							</h4>
+						</div>
+						<div id="collapse2" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="row text-center">
+									<a class="" href="#">Name: Bob's Bouncy House</a>
+								</div>
+								<div class="row">
+									<div class="col-sm-2">
+										<img src="http://lorempixel.com/100/100/nightlife">
+									</div>
+									<div class="col-sm-4">
+										<h5 class="collapse-header">Date:</h5>
+										<p>Mon, Oct 16 - Sun, Oct 19</p>
+									</div>
+									<div class="col-sm-5">
+										<h5 class="collapse-header">Description:</h5>
+										<p>Huge garage sale with more than 30 families participating. Multiple classrooms/lunchroom will be utilized for the sale. Tons of kids and women's clothing, toys, books, Halloween costumes, Christmas decorations, home décor and furniture. Preview sale ($2 at door): October 19, 4-8pm General sale October 20, 10-6pm and October 21, 10-4pm Pictures to be added prior to sale date.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-heading" data-toggle="collapse" data-target="#collapse3">
+							<h4 class="panel-title">
+								<h5 class="collapse-header">Location:</h5>
+								<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
+								<span class="glyphicon glyphicon-chevron-down pull-right" aria-hidden="true"></span>
+							</h4>
+						</div>
+						<div id="collapse3" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="row text-center">
+									<a class="" href="#">Name: Bob's Bouncy House</a>
+								</div>
+								<div class="row">
+									<div class="col-sm-2">
+										<img src="http://lorempixel.com/100/100/nightlife">
+									</div>
+									<div class="col-sm-4">
+										<h5 class="collapse-header">Date:</h5>
+										<p>Mon, Oct 16 - Sun, Oct 19</p>
+									</div>
+									<div class="col-sm-5">
+										<h5 class="collapse-header">Description:</h5>
+										<p>Huge garage sale with more than 30 families participating. Multiple classrooms/lunchroom will be utilized for the sale. Tons of kids and women's clothing, toys, books, Halloween costumes, Christmas decorations, home décor and furniture. Preview sale ($2 at door): October 19, 4-8pm General sale October 20, 10-6pm and October 21, 10-4pm Pictures to be added prior to sale date.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default">
+						<div class="panel-heading" data-toggle="collapse" data-target="#collapse4">
+							<h4 class="panel-title">
+								<h5 class="collapse-header">Location:</h5>
+								<p class="collapse-header-text">700 7th Street East Saint Paul, MN 55106</p>
+								<span class="glyphicon glyphicon-chevron-down pull-right" aria-hidden="true"></span>
+							</h4>
+						</div>
+						<div id="collapse4" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="row text-center">
+									<a class="" href="#">Name: Bob's Bouncy House</a>
+								</div>
+								<div class="row">
+									<div class="col-sm-2">
+										<img src="http://lorempixel.com/100/100/nightlife">
+									</div>
+									<div class="col-sm-4">
+										<h5 class="collapse-header">Date:</h5>
+										<p>Mon, Oct 16 - Sun, Oct 19</p>
+									</div>
+									<div class="col-sm-5">
+										<h5 class="collapse-header">Description:</h5>
+										<p>Huge garage sale with more than 30 families participating. Multiple classrooms/lunchroom will be utilized for the sale. Tons of kids and women's clothing, toys, books, Halloween costumes, Christmas decorations, home décor and furniture. Preview sale ($2 at door): October 19, 4-8pm General sale October 20, 10-6pm and October 21, 10-4pm Pictures to be added prior to sale date.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
 
-		<footer>
-		    <?php
+			<footer>
+				<?php
                 PageBuilder::getFooter();
             ?>
-		</footer>
+			</footer>
 	</body>
 
 	</html>
