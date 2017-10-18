@@ -137,6 +137,7 @@ class User {
      * @author Gary
      */
     public function logout() { // TODO: logout is not deleting cookie.
+      $this->db_conn->query('DELETE FROM login_attempts WHERE user_fk_id = ?', array($this->data()->user_id));
     	Session::delete($this->sessionName);
 			Cookie::delete($this->cookieName);
     }
@@ -164,18 +165,40 @@ class Item { // TODO: need to implement
  * Class represents a place
  */
 class Place { // TODO: need to implement
-    private $db_conn;
+  private $db_conn, $data;
 
-    public function __construct($place = null) {
-        $this->db_conn = SqlManager::getInstance();
-    }
+  public function __construct($place = null) {
+    $this->db_conn = SqlManager::getInstance();
+    if ($place) {
+      $this->find($place);
+    }  else { // TODO: Do I need to implement?
 
-    public function create($params = array()) {
-       $sql = "INSERT INTO places (place_id, address, city, state, zip_code, country) VALUES (NULL, ?, ?, ?, ?, ?);";
-        if (!$this->db_conn->query($sql, $params)) {
-            throw new Exception("Error creating place!");
-        }
     }
+  }
+
+  public function create($params = array()) {
+     $sql = "INSERT INTO places (place_id, address, city, state, zip_code, country) VALUES (NULL, ?, ?, ?, ?, ?);";
+      if (!$this->db_conn->query($sql, $params)) {
+          throw new Exception("Error creating place!");
+      }
+  }
+
+  public function find($place = null) {
+    if ($place) {
+      $sql = "SELECT * FROM places WHERE place_id = ?";
+      $result = $this->db_conn->query($sql, array($place));
+      if ($result->getCount()) {
+        $this->data = $result->getResult()[0];
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function getData() {
+    return $this->data;
+  }
+
 }
 
 /**
@@ -186,34 +209,33 @@ class GarageSale { // TODO: need to implement
 					$data;
 
 	public function __construct($sale = null) {
-			$this->db_conn = SqlManager::getInstance();
-			if (!$sale) {
-				// TODO: to be implemented?
-			} else {
-				$this->find($sale);
-			}
-			
+    $this->db_conn = SqlManager::getInstance();
+    if (!$sale) {
+      // TODO: to be implemented?
+    } else {
+      $this->findSale($sale);
+    }
 	}
 
 	public function findSale($gsale = null) {
 		if ($gsale != null) {
-            $sql = "SELECT * FROM users WHERE gsale_id = ?";
-            $params = array($gsale);
-            $result = $this->db_conn->query($sql, $params);
-            if ($result->getCount() > 0) {
-                $this->data = $result->getResult()[0];
-                return true;
-            }
-        }
-        return false;
+      $sql = "SELECT * FROM garage_sales WHERE gsale_id = ?";
+      $params = array($gsale);
+      $result = $this->db_conn->query($sql, $params);
+      if ($result->getCount() > 0) {
+          $this->data = $result->getResult()[0];
+          return true;
+      }
+    }
+    return false;
 	}
 	
 	public function create($params = array()) {
-        $sql = "INSERT INTO garage_sales (gsale_id, sale_name, image_url, description, start_date, end_date, places_fk_id, user_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
-        if (!$this->db_conn->query($sql, $params)) {
-            throw new Exception("Error creating account!");
-        }
-   }
+    $sql = "INSERT INTO garage_sales (gsale_id, sale_name, image_url, description, start_date, end_date, places_fk_id, user_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
+    if (!$this->db_conn->query($sql, $params)) {
+      throw new Exception("Error creating account!");
+    }
+  }
 	
 	public function editSale($params = array()) {
 		// TODO: need to implement
@@ -483,33 +505,31 @@ CONTENT;
   * TODO: To be implemented by subclasses
   */
 class IndexPage extends PageBuilder {
-  private $user;
+  private $user, $db_conn;
 
   function __construct() {
     $this->user = new User();
+    $this->db_conn = SqlManager::getInstance();
   }
 
-
-  public function getContent() {
-    $welcomeSize = 12;
-    if (!$this->user->isLoggedIn()) {
-      $welcomeSize = 8;
-      $loginSize = 4;
-      $this->getWelcome($welcomeSize);
-      $this->getLogin($loginSize);
-    } else {
-      $this->getWelcome($welcomeSize);
-    }
-    $this->getTable();
-  }
+  public function getContent(){}
 
   private function getTableData() {
 		$sql = "SELECT count(gsale_id) as count FROM garage_sales";
-		$db_conn = SqlManager::getInstance();
-		$result = $db_conn->query($sql, array());
-		var_dump($result);
-		return $result->getResult()[0]->count;
-
+		$result = $this->db_conn->query($sql, array());
+    $sql = "SELECT min(gsale_id) as min FROM garage_sales";
+    $max = $result->getResult()[0]->count;
+    $result = $this->db_conn->query($sql, array());
+    $min = $result->getResult()[0]->min;
+    ($min > $max) ? $max = $min : false;
+    $indexArray = array(rand($min,$max), rand($min,$max), rand($min,$max), rand($min,$max));
+    $sql = "SELECT * FROM garage_sales WHERE gsale_id = ?";
+    $return_array = array();
+    foreach ($indexArray as $index) {
+      $garage_sale = new GarageSale($index);
+      array_push($return_array, $garage_sale);
+    }
+    return $return_array;
   }
 
   private function getWelcome($size) {
@@ -527,7 +547,49 @@ class IndexPage extends PageBuilder {
   }
 
   public function getTable() {
-		return $this->getTableData();
+		$sales = $this->getTableData();
+    $html = "<div class='panel-group'>";
+    $count = 1;
+    foreach ($sales as $sale) {
+      $gsale_id = $sale->getData()->gsale_id;
+      $sale_name = $sale->getData()->sale_name;
+      $image_url = $sale->getData()->image_url;
+      $description = $sale->getData()->description;
+      $start_date = $sale->getData()->start_date;
+      $end_date = $sale->getData()->end_date;
+      $places_fk_id = $sale->getData()->places_fk_id;
+
+      $place = new Place($places_fk_id);
+      $place_location = $place->getData()->address . " " . $place->getData()->city . ", " . $place->getData()->state . " " . $place->getData()->zip_code;
+      $html .= "<div class='panel panel-default'>
+                  <div class='panel-heading' data-toggle='collapse' data-target='#collapse{$count}' aria-expanded='true'>
+                    <h4 class='panel-title'><h5 class='collapse-header'>Location:</h5><p class='collapse-header-text'>{$place_location}</p><span class='glyphicon glyphicon-chevron-down pull-right' aria-hidden='true'></span></h4>
+                  </div>
+						      <div id='collapse{$count}' class='panel-collapse collapse in' aria-expanded='true' style=''>
+                    <div class='panel-body'>
+                      <div class='row text-center'>
+                        <a class='' href='#{$gsale_id}'>Name: {$sale_name}</a>
+                      </div>
+								      <div class='row'>
+									     <div class='col-sm-4'>
+                       <img src='../img/{$image_url}'>
+									   </div>
+									   <div class='col-sm-4'>
+                      <h5 class='collapse-header'>Date:</h5>
+                      <p>{$start_date} - {$end_date}</p>
+									   </div>
+									   <div class='col-sm-4'>
+                      <h5 class='collapse-header'>Description:</h5>
+                      <p>{$description}</p>
+									   </div>
+                    </div>
+                  </div>
+                </div>
+              </div>";
+      $count++;
+    }
+    $html .= "</div>";
+    return $html;
   }
 }
  /**
