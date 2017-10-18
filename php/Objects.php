@@ -46,7 +46,7 @@ class User {
      * @param array paramerter values
      */
     public function create($params = array()) {
-        $sql = "INSERT INTO users (user_id, username, password, fname, lname, email, phone_number, places_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
+        $sql = "INSERT INTO users (user_id, username, password, fname, lname, email) VALUES (NULL, ?, ?, ?, ?, ?);";
         if (!$this->db_conn->query($sql, $params)) {
             throw new Exception("Error creating account!");
         }
@@ -136,8 +136,9 @@ class User {
      * Causes the user to logout
      * @author Gary
      */
-    public function logout() {
-        Session::delete($this->sessionName);
+    public function logout() { // TODO: logout is not deleting cookie.
+    	Session::delete($this->sessionName);
+			Cookie::delete($this->cookieName);
     }
 }
 
@@ -236,8 +237,8 @@ abstract class PageBuilder {
 		$this->active = '';
 		$this->title = '';
 		$this->header = '';
-        $user = new User();
-		$this->logged_in = $user->isLoggedIn(); // TODO: change to dynamic
+    $user = new User();
+		$this->logged_in = $user->isLoggedIn();
 		$array = explode('/', sanitizeInput($_SERVER['PHP_SELF']));
 		$page_name = array_pop($array);
 		switch($page_name) {

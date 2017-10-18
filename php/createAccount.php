@@ -9,7 +9,9 @@
 	<html lang="en">
 
 	<head>
-		<title><?php PageBuilder::getTitle() ?></title>
+		<title>
+			<?php PageBuilder::getTitle() ?>
+		</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -21,7 +23,7 @@
 
 	<body>
 		<header>
-            <?php
+			<?php
                 $pageBuilder = new RegisterPage();
                 $pageBuilder->getHeader();
             ?>
@@ -61,47 +63,25 @@
                                     'min' => 2,
                                     'max' => 30
                                 ),
-                                'phone' => array(
-                                    'required' => true,
-                                    'min' => 10,
-                                    'max' => 13,
-                                    'phone' => true         // must be a phone number
-                                ),
                                 'email' => array(
                                     'required' => true,
                                     'min' => 2,
                                     'max' => 50,
                                     'email' => true         // must be an email
-                                ),
-                                'address' => array(
-                                    'required' => true,
-                                    'min' => 2,
-                                    'max' => 120,
-                                    'address' => true       // must be an address
-                                ),
+                                )
                             ));
 
                             if ($validation->passed()) { // create place then create user for user
                                 $user = new User();
                                 $place = new Place();
                                 try {
-                                    /*
-                                    // TODO: Break $_POST['address'] into address, city, state, zip, country
-                                    $place->create(array(
-
-                                    ));
-                                     $location_fk = '' // TODO: get place_id from query above
-
-                                    // TODO: implement create place before uncommenting
                                     $user->create(array(
                                         sanitizeInput($_POST['username']),
                                         password_hash(sanitizeInput($_POST['password']), PASSWORD_DEFAULT),
                                         sanitizeInput($_POST['fname']),
                                         sanitizeInput($_POST['lname']),
-                                        sanitizeInput($_POST['email']),
-                                        sanitizeInput($_POST['phone']),
-                                        $location_fk));
-                                        */
+                                        sanitizeInput($_POST['email'])
+																		));
                                 } catch(Exception $e) {
                                     die ($e->getMessage());
                                 }
@@ -117,47 +97,39 @@
 					}
 				}
 			?>
-			<form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
-				<div class="form-group">
-					<label for="username">Username:</label>
-					<input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : ""); ?>">
-				</div>
-				<div class="form-group">
-					<label for="password">Password:</label>
-					<input type="password" class="form-control" id="password" name="password" >
-				</div>
-				<div class="form-group">
-					<label for="password_again">Reenter Password:</label>
-					<input type="password" class="form-control" id="password_again" name="password_again">
-				</div>
-				<div class="form-group">
-					<label for="fname">First Name:</label>
-					<input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : ""); ?>">
-				</div>
-				<div class="form-group">
-					<label for="lname">Last Name:</label>
-					<input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : ""); ?>">
-				</div>
-				<div class="form-group">
-					<label for="phone">Phone:</label>
-					<input type="tel" class="form-control" id="phone" name="phone" value="<?php echo (isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ""); ?>">
-				</div>
-				<div class="form-group">
-					<label for="email">Email:</label>
-					<input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : ""); ?>">
-				</div>
-				<div class="form-group">
-					<label for="address">Address:</label>
-					<input type="text" class="form-control" id="address" name="address" value="<?php echo (isset($_POST['address']) ? sanitizeInput($_POST['address']) : ""); ?>">
-				</div>
-				<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-				<button type="submit" class="btn btn-default" name="submit">Submit</button>
-			</form>
+				<form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
+					<div class="form-group">
+						<label for="username">Username:</label>
+						<input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : " "); ?>">
+					</div>
+					<div class="form-group">
+						<label for="password">Password:</label>
+						<input type="password" class="form-control" id="password" name="password">
+					</div>
+					<div class="form-group">
+						<label for="password_again">Reenter Password:</label>
+						<input type="password" class="form-control" id="password_again" name="password_again">
+					</div>
+					<div class="form-group">
+						<label for="fname">First Name:</label>
+						<input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : " "); ?>">
+					</div>
+					<div class="form-group">
+						<label for="lname">Last Name:</label>
+						<input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : " "); ?>">
+					</div>
+					<div class="form-group">
+						<label for="email">Email:</label>
+						<input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : " "); ?>">
+					</div>
+					<input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+					<button type="submit" class="btn btn-default" name="submit">Submit</button>
+				</form>
 		</div>
 		<footer>
-		    <?php
-                PageBuilder::getFooter();
-            ?>
+			<?php
+        PageBuilder::getFooter();
+      ?>
 		</footer>
 	</body>
 
