@@ -50,11 +50,9 @@
                         'username' => array('required' => true),
                         'password' => array('required' => true)));
                     if ($validation->passed()) {  // input is valid
-                        var_dump($_POST);
                         $user = new User();
                         $remember = (isset($_POST['remember'])) ? true : false;
                         $login = $user->login(sanitizeInput($_POST['username']), sanitizeInput($_POST['password']), $remember);
-                        var_dump($login);
                         if ($login) {
                             Redirect::page('yourSales.php');
                         } else {
@@ -73,12 +71,16 @@
 					}
         ?>
 					
-				<?php
-					echo "<h1>" . $pageBuilder->getTable() . "</h1>";
-				?>
-				</div>
+
+		    </div>
 			</div>
-			<div class="container">
+			<div class="container container-table">
+        <h3>Near You</h3>
+			  <?php
+				  echo $pageBuilder->getTable();
+        ?>
+			</div>
+			<!--<div class="container">
 				<h3>Near You</h3>
 				<div class="panel-group">
 					<div class="panel panel-default">
@@ -198,16 +200,16 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			</div>-->
 
 			<footer>
-				<?php
-      PageBuilder::getFooter();
+		  <?php
+        PageBuilder::getFooter();
       ?>
 			</footer>
 	</body>
 
 	</html>
 	<?php
-  ob_start();
-?>
+    ob_start();
+  ?>
