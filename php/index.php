@@ -72,6 +72,10 @@
 						include 'login.php';
 					}
         ?>
+					
+				<?php
+					echo "<h1>" . $pageBuilder->getTable() . "</h1>";
+				?>
 				</div>
 			</div>
 			<div class="container">

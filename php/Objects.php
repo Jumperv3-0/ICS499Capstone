@@ -182,17 +182,50 @@ class Place { // TODO: need to implement
  * Class represents a garageSale
  */
 class GarageSale { // TODO: need to implement
-	 private $db_conn;
+	private $db_conn,
+					$data;
 
-    public function __construct($place = null) {
-        $this->db_conn = SqlManager::getInstance();
-    }
+	public function __construct($sale = null) {
+			$this->db_conn = SqlManager::getInstance();
+			if (!$sale) {
+				// TODO: to be implemented?
+			} else {
+				$this->find($sale);
+			}
+			
+	}
 
-    public function create($params = array()) {
-       $sql = "";
-        if (!$this->db_conn->query($sql, $params)) {
-            throw new Exception("Error creating Garage Sale!");
+	public function findSale($gsale = null) {
+		if ($gsale != null) {
+            $sql = "SELECT * FROM users WHERE gsale_id = ?";
+            $params = array($gsale);
+            $result = $this->db_conn->query($sql, $params);
+            if ($result->getCount() > 0) {
+                $this->data = $result->getResult()[0];
+                return true;
+            }
         }
+        return false;
+	}
+	
+	public function create($params = array()) {
+        $sql = "INSERT INTO garage_sales (gsale_id, sale_name, image_url, description, start_date, end_date, places_fk_id, user_fk_id) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?);";
+        if (!$this->db_conn->query($sql, $params)) {
+            throw new Exception("Error creating account!");
+        }
+   }
+	
+	public function editSale($params = array()) {
+		// TODO: need to implement
+	}
+	
+	    /**
+     * Gets user data information
+     * @author Gary
+     * @return array of data about user from db
+     */
+    public function getData() {
+        return $this->data;
     }
 }
 
@@ -471,6 +504,11 @@ class IndexPage extends PageBuilder {
   }
 
   private function getTableData() {
+		$sql = "SELECT count(gsale_id) as count FROM garage_sales";
+		$db_conn = SqlManager::getInstance();
+		$result = $db_conn->query($sql, array());
+		var_dump($result);
+		return $result->getResult()[0]->count;
 
   }
 
@@ -488,8 +526,8 @@ class IndexPage extends PageBuilder {
 
   }
 
-  private function getTable() {
-
+  public function getTable() {
+		return $this->getTableData();
   }
 }
  /**
