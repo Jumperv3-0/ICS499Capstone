@@ -114,6 +114,31 @@ class User {
         return false;
     }
 
+		public function edit($params = array(), $user = null) {
+			$sql = "UPDATE users SET username = ? , password = ?, fname = ?, lname = ?, email = ? WHERE user_id = ?";
+			if ($user) {
+				$found = $this->find($user);
+				if($found) {
+					$user_id = $this->data()->user_id;
+					array_push($params, $user_id);
+					$result = $this->db_conn->query($sql, $params);
+					if ($result->getError()) {
+						return true;
+					}
+				}
+			} else {
+				if ($this->exists()) {
+					$user_id = $this->data()->user_id;
+					array_push($params, $user_id);
+					$result = $this->db_conn->query($sql, $params);
+					if ($result->getError()) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
     /**
      * Gets user data information
      * @author Gary
@@ -197,7 +222,41 @@ class Place { // TODO: need to implement
 
   public function getData() {
     return $this->data;
-  }
+	}
+
+	public function exists() {
+		return empty($this->data);
+	}
+
+	public function edit($params = array(), $place_id){
+		$sql = "UPDATE places SET place_name = ? , address = ?, city = ?, state = ?, zip_code = ?, country = ? WHERE place_id = ?";
+			if ($place_id) {
+				$found = $this->find($place_id);
+				if($found) {
+					$place_id = $this->data()->place_id;
+					array_push($params, $place_id);
+					$result = $this->db_conn->query($sql, $params);
+					if ($result->getError()) {
+						return true;
+					}
+				}
+			} else {
+				if ($this->exists()) {
+					$place_id = $this->data()->place_id;
+					array_push($params, $place_id);
+					$result = $this->db_conn->query($sql, $params);
+					if ($result->getError()) {
+						return true;
+					}
+				}
+			}
+			return false;
+	}
+
+
+	public function remove() {
+
+	}
 
 }
 
