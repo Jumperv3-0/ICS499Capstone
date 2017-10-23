@@ -358,34 +358,38 @@ abstract class PageBuilder {
 		switch($page_name) {
 			case "index.php":
 				$this->active = 'index';
-				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
 				break;
 			case "yourSales.php":
 				$this->active = 'yourSales';
-				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
 				break;
 			case "items.php":
 				$this->active = 'items';
-				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
 				break;
 			case "createAccount.php":
 				$this->active = 'createAccount';
-				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
 				break;
 			case "otherSales.php":
 				$this->active = 'otherSales';
-				$this->header = $this->makeHeader($this->active, $this->title, $this->logged_in);
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
 				break;
-			default:
-				$active = '';
-				$title = '';
-				$header = 'add Page';
+      case "createSale2.php":
+        $this->active = 'createSale';
+				$this->header = $this->makeHeader($this->active, $this->logged_in);
 				echo $this->header;
+        break;
+			default:
+				//$this->active = 'createSale';
+				//$this->header = $this->makeHeader($this->active, $this->logged_in);
+				echo "Add page";
 		}
 	}
 
@@ -427,7 +431,7 @@ CONTENT;
 	 * @param  boolean $logged_in true if the user is logged in else false
 	 * @return string html text for header
 	 */
-	protected function makeHeader($active, $title, $logged_in) {
+	protected function makeHeader($active, $logged_in) {
 		$header = '';
 		if (!$logged_in) {
 			$header = '
@@ -685,6 +689,7 @@ class SalesPage extends PageBuilder {
 
     }
 }
+
  /**
   * TODO: To be implemented by subclasses
   */
