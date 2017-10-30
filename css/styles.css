@@ -1,125 +1,120 @@
 body {}
 
 .separator {
-  border-bottom: #526747 5px solid;
+	border-bottom: #526747 5px solid;
 }
 
 .btn-green,
 .btn-green:focus {
-  padding: .5em 3em;
-  border-color: #ccc;
-  background-color: #526747;
-  color: #fff;
+	padding: .5em 3em;
+	border-color: #ccc;
+	background-color: #526747;
+	color: #fff;
 }
 
 .btn-green:hover {
-  border-color: #ccc;
-  background-color: #234214;
-  color: #fff;
+	border-color: #ccc;
+	background-color: #234214;
+	color: #fff;
 }
 
 .navbar {
-  margin-bottom: 0;
-  padding: .5% 0;
-  border-right: none;
-  border-bottom: #526747 5px solid;
-  border-left: none;
-  border-radius: 0;
-  background-color: #234214;
-  color: #fff;
-  font-size: 1.1em;
+	margin-bottom: 0;
+	padding: .5% 0;
+	border-right: none;
+	border-bottom: #526747 5px solid;
+	border-left: none;
+	border-radius: 0;
+	background-color: #234214;
+	color: #fff;
+	font-size: 1.1em;
 }
 
 .navbar-inverse .navbar-collapse {
-  border-color: #526747;
+	border-color: #526747;
 }
 
 .navbar-brand {
-  float: left;
-  /*min-height: 55px;*/
-  padding: 0 15px 5px;
+	float: left;
+	/*min-height: 55px;*/
+	padding: 0 15px 5px;
 }
 
 .navbar-inverse .navbar-nav .active a,
 .navbar-inverse .navbar-nav .active a:focus,
 .navbar-inverse .navbar-nav .active a:hover {
-  background-color: #234214;
-  color: #fff;
+	background-color: #234214;
+	color: #fff;
 }
 
 .navbar-brand img {
-  width: 5.8em;
+	width: 5.8em;
 }
 
 .navbar-inverse .navbar-nav > .open > a,
 .navbar-inverse .navbar-nav > .open > a:focus,
 .navbar-inverse .navbar-nav > .open > a:hover {
-  background-color: #234214;
-  color: #fff;
+	background-color: #234214;
+	color: #fff;
 }
 
 .nav {
-  margin-bottom: 0;
-  padding: .5% 0;
-  border: none;
-  border-radius: 0;
-  background-color: #234214;
-  color: #fff;
-  font-size: 1.1em;
+	margin-bottom: 0;
+	padding: .5% 0;
+	border: none;
+	border-radius: 0;
+	background-color: #234214;
+	color: #fff;
+	font-size: 1.1em;
 }
 
 .navbar-header {
-  min-height: 3.8em;
+	min-height: 3.8em;
 }
 
 .navbar-inverse .navbar-toggle:focus,
 .navbar-inverse .navbar-toggle:hover {
-  background-color: #526747;
+	background-color: #526747;
 }
 
 .navbar-inverse .navbar-toggle {
-  border-color: #fff;
-}
-
-.navbar-form {
-  margin-top: -.4em;
-  padding: 0;
+	border-color: #fff;
 }
 
 .container-flex {
-  margin: auto;
-  max-width: 1200px !important;
+	margin: auto;
+	max-width: 1200px !important;
 }
 
 footer {
-  border-color: #ccc;
-  background-color: #234214;
-  color: #fff;
+	border-color: #ccc;
+	background-color: #234214;
+	color: #fff;
 }
 
 .collapse-header {
-  display: inline;
-  color: #234214;
-  font-weight: bold;
+	display: inline;
+	color: #234214;
+	font-weight: bold;
 }
 
 .collapse-header-text {
-  display: inline
+	display: inline
 }
 
 .dropdown-caret {
-  margin-top: .5em;
-  color: #234214;
+	margin-top: .5em;
+	color: #234214;
 }
 
 ul.nav.navbar-nav.navbar-right {
-  padding-right: 1%;
+	padding-right: 1%;
 }
 
 .top-container {
-  padding-top: 2em;
+	padding-top: 2em;
 }
 
 .container-table {
-  background-color: #e3e3e3;
+	background-color: #e3e3e3;
 }
