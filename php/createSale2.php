@@ -32,6 +32,7 @@
 			 * @author Gary
 			 */
 			function addDate() {
+
 				var o = document.getElementById('date-time');
 				var childList = o.childNodes;
 				o.insertBefore(makeDate(numberOfDays++), childList[childList.length - 2]);
@@ -191,7 +192,8 @@
                 'max' => 22
               ),
               'description' => array(
-                'max' => 10000 // FIXME: what is description max size?
+                'max' => 10000, // FIXME: what is description max size?
+								'required' => true
               ),
               'address' => array(
                 'required' => true,
@@ -200,19 +202,39 @@
               'phone' => array(
                 'required' => true,
                 'phone' => true
+							),
+							'date' => array(
+                'required' => true,
+                'date' => true
+              ),
+							'startTime' => array(
+                'required' => true,
+                'startTime' => true
+              ),
+							'endTime' => array(
+                'required' => true,
+                'endTime' => true
+								//'after' => 'startTime'
               ));
-            for ($i = 0; $i < count($_POST['date']); $i++) {
-              echo "<p>date</p>";
-            }
-            for ($i = 0; $i < count($_POST['startTime']); $i++) {
-              echo "<p>st</p>";
-            }
-            for ($i = 0; $i < count($_POST['endTime']); $i++) {
-              echo "<p>edt</p>";
-            }
             $validation = $validator->check($_POST, $rules);
             $image_url = ""; // TODO: need to upload image to downloads folder and create new url and save here
-//            if ($validation->passed()) { // $user = new User(); // $sale = new Sale(); // try { // $sale->create(array( // sanitizeInput($_POST['sale_name']), // $image_url, // sanitizeInput($_POST[]) // )); // } catch(Exception) { // // } // }
+            if ($validation->passed()) {
+							$user = new User();
+							$sale = new Sale();
+							try {
+								$sale->create(array(
+									sanitizeInput($_POST['sale_name']),
+									$image_url,
+									sanitizeInput($_POST[])
+								));
+							} catch(Exception $e) {
+                die ($e->getMessage());
+              }
+						} else {
+							foreach($validation->getErrors() as $error) {
+								echo $error . "<br>";
+							}
+						}
           }
         }
       ?>
