@@ -488,16 +488,14 @@ CONTENT;
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
 										<li>
-											<a href="#">
-												<form class="navbar-form navbar-right" role="search">
-													<div class="input-group">
-														<input id="search" type="text" class="form-control" placeholder="Search" name="search">
-														<div class="input-group-btn">
-															<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-														</div>
-													</div>
-												</form>
-											</a>
+                      <form class="navbar-form navbar-right" role="search">
+                        <div class="input-group">
+                          <input id="search" type="text" class="form-control" placeholder="Search" name="search">
+                          <div class="input-group-btn">
+                            <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
+                          </div>
+                        </div>
+                      </form>
 										</li>
 										<li class="dropdown">
 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
@@ -660,51 +658,69 @@ class IndexPage extends PageBuilder {
   */
 class RegisterPage extends PageBuilder {
 
-		public function getContent() {
+  public function getContent() {
 
-		}
+  }
 
-    protected function getTable() {
+  protected function getTable() {
 
-    }
+  }
 
-    protected function getTableData() {
+  protected function getTableData() {
 
-    }
+  }
 
 }
  /**
   * TODO: To be implemented by subclasses
   */
 class SalesPage extends PageBuilder {
-		public function getContent() {
+  public function getContent() {
 
-		}
+  }
 
-    protected function getTable() {
+  protected function getTable() {
 
-    }
+  }
 
-    protected function getTableData() {
+  protected function getTableData() {
 
-    }
+  }
 }
 
  /**
   * TODO: To be implemented by subclasses
   */
+class CreateSalesPage extends PageBuilder {
+  public function getContent() {
+
+  }
+
+  protected function getTable() {
+
+  }
+
+  protected function getTableData() {
+
+  }
+}
+
+
+ /**
+  * TODO: To be implemented by subclasses
+  */
 class ItemsPage extends PageBuilder {
-		public function getContent() {
+  public function getContent() {
 
-		}
+  }
 
-    protected function getTable() {
+  protected function getTable() {
 
-    }
+  }
 
-    protected function getTableData() {
+  protected function getTableData() {
 
-    }
+  }
 }
 
 /**
