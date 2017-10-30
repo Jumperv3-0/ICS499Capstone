@@ -28,6 +28,7 @@
                 $pageBuilder->getHeader();
             ?>
     </header>
+    <h1>Create a G=Sale Account.</h1>
     <div class="container">
       <?php
 
