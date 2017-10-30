@@ -150,9 +150,21 @@
 	 * @return string safe to use input
 	 */
 	function sanitizeInput($input) {
-		$data = trim($input);
-		$data = stripslashes($input);
-		$data = htmlspecialchars($input);
-		return $data;
+		if (is_array($input)) {
+			for($i = 0; $i < count($input); $i++) {
+				$data = $input[$i];
+				$data = trim($data);
+				$data = stripslashes($data);
+				$data = htmlspecialchars($data);
+				$input[$i] = $data;
+			}
+			return $input;
+		} else {
+			$data = $input;
+			$data = trim($data);
+			$data = stripslashes($data);
+			$data = htmlspecialchars($data);
+			return $data;
+		}
 	}
 ?>
