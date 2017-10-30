@@ -791,6 +791,18 @@ class Validation {
                         case 'address': // TODO: need to implement
 
                             break;
+                        case 'image': // TODO: need to implement
+
+                            break;
+                        case 'date': // TODO: need to implement
+
+                            break;
+                        case 'startTime': // TODO: need to implement
+
+                            break;
+                        case 'endTime': // TODO: need to implement
+
+                            break;
                     }
                 }
             }
