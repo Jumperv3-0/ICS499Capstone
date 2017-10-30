@@ -452,16 +452,14 @@ CONTENT;
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
 										<li>
-											<a href="#">
-												<form class="navbar-form navbar-right" role="search">
-													<div class="input-group">
-														<input id="search" type="text" class="form-control" placeholder="Search" name="search">
-														<div class="input-group-btn">
-															<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-														</div>
+											<form class="navbar-form navbar-right" role="search">
+												<div class="input-group">
+													<input id="search" type="text" class="form-control" placeholder="Search" name="search">
+													<div class="input-group-btn">
+														<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
 													</div>
-												</form>
-											</a>
+												</div>
+											</form>
 										</li>
 										<li><a href="createAccount.php">Create Account</a></li>
 										<li><a href="#"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
@@ -781,27 +779,97 @@ class Validation {
                                 $this->addError("{$test} was not a valid email.");
                             }
                             break;
-                         case 'phone':
+											case 'phone':
                             $phone_number = sanitizeInput($submit_method[$rule]);
-                            $phone_number = preg_replace('/\s+/', '', $phone_number);
-                            if (!is_numeric($phone_number)) { //TODO: need to implement
+                            $phone_number = preg_replace('/[\s+\(\)\-]+/', '', $phone_number);
+                            if (!is_numeric($phone_number)) {
                                 $this->addError("Phone number was not valid.");
                             }
                             break;
                         case 'address': // TODO: need to implement
-
+														$address = sanitizeInput($submit_method[$rule]);
+														$address = explode(",", $address);
+														if (count($address) < 3) {
+															$this->addError("Address was not valid.");
+														} else {
+															foreach($address as $field) {
+																if (strlen($field) < 2) {
+																	$this->addError("Address was not valid.");
+																	break;
+																}
+															}
+														}
                             break;
                         case 'image': // TODO: need to implement
 
                             break;
-                        case 'date': // TODO: need to implement
-
+                        case 'date':
+														$dates = array();
+														for($i = 0 ; $i < count($value); $i++) {
+															$dates[] = sanitizeInput($submit_method[$rule][$i]);
+														}
+														$count = 1;
+														foreach($dates as $date) {
+															if (!is_numeric(substr($date,0,4))) {
+																$this->addError("Date {$count} was not valid");
+															} else if ($date[4] != '-') {
+																$this->addError("Date {$count} was not valid");
+															} else if (!is_numeric(substr($date,5,2))) {
+																$this->addError("Date {$count} was not valid");
+															} else if ($date[7] != '-') {
+																$this->addError("Date {$count} was not valid");
+															} else if (!is_numeric(substr($date,8))) {
+																$this->addError("Date {$count} was not valid");
+															} else if ((int)substr($date,0,4) < (int)date("Y") || (int)substr($date,5,2) < (int)date("m") || (int)substr($date,8) < (int)date("d")) {
+																$this->addError("Date {$count} can not be before today");
+															}
+															$count++;
+														}
                             break;
-                        case 'startTime': // TODO: need to implement
+                        case 'startTime':
+														$startTime = array();
+														for($i = 0 ; $i < count($value); $i++) {
+															$startTime[] = sanitizeInput($submit_method[$rule][$i]);
+														}
+														$count = 1;
+														foreach($startTime as $time) {
+															echo $time. "<br>";
+															if (!is_numeric(substr($time,0,2))) {
+																$this->addError("Start time {$count} was not a time");
+															} else if (strlen($time) > 0 && $time[2] != ':') {
+																$this->addError("Start time {$count} was not a time");
+															} else if (!is_numeric(substr($time,3,2))) {
+																$this->addError("Start time {$count} was not a time");
+															}
+															/* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
+															if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
+																$this->addError("Time {$count} can not be before now");
+															}*/
+															$count++;
+														}
 
                             break;
                         case 'endTime': // TODO: need to implement
-
+														$endTime = array();
+														for(!$i = 0 ; $i < count($value); $i++) {
+															$endTime[] = sanitizeInput($submit_method[$rule][$i]);
+														}
+														$count = 1;
+														foreach($endTime as $time) {
+															echo $time. "<br>";
+															if (is_numeric(substr($time,0,2))) {
+																$this->addError("End time {$count} was not a time");
+															} else if (strlen($time) > 0 && $time[2] != ':') {
+																$this->addError("End time {$count} was not a time");
+															} else if (!is_numeric(substr($time,3,2))) {
+																$this->addError("End time {$count} was not a time");
+															}
+															/* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
+															if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
+																$this->addError("Time {$count} can not be before now");
+															}*/
+															$count++;
+														}
                             break;
                     }
                 }
@@ -813,6 +881,10 @@ class Validation {
         }
         return $this;
     }
+
+		function checkArray($submit_method, $tests = array()) {
+
+		}
 
     /**
      * Adds an error to the list of errors
