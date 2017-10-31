@@ -217,16 +217,36 @@
 								//'after' => 'startTime'
               ));
             $validation = $validator->check($_POST, $rules);
-            $image_url = ""; // TODO: need to upload image to downloads folder and create new url and save here
+						$place_name = "nunya";
+            $image_url = "not_implented.png"; // TODO: need to upload image to downloads folder and create new url and save here
+						$fomatedDates = formatDates();
             if ($validation->passed()) {
 							$user = new User();
-							$sale = new Sale();
+							$gsale = new GarageSale();
+							$place = new Place();
 							try {
-								$sale->create(array(
-									sanitizeInput($_POST['sale_name']),
-									$image_url,
-									sanitizeInput($_POST[])
+								$address = $_POST['address'];
+								$address = explode(",", $address);
+								$address = sanitizeInput($address);
+								$place = $place->create(array(
+									$place_name,
+									$address[0],
+									$address[1],
+									$address[2],
+									"",
+									$address[3]
 								));
+								if ($place->exists()) {
+									// create garageSale()
+									$gsale = $gsale->create(array(
+										sanitizeInput($_POST['sale_name']),
+										$image_url,
+										sanitizeInput($_POST['description']),
+										$fomatedDates,
+										$place->getData()->place_id,
+										$user->data()->user_id
+									));
+								}
 							} catch(Exception $e) {
                 die ($e->getMessage());
               }
@@ -235,6 +255,7 @@
 								echo $error . "<br>";
 							}
 						}
+						Redirect::page("yourSales.php");
           }
         }
       ?>
@@ -248,7 +269,7 @@
 					</div>
 					<div class="form-group">
 						<label for="description">General Description:</label>
-						<textarea class="form-control" rows="4" cols="50" id="description" name="description"></textarea>
+						<textarea class="form-control" rows="4" cols="50" id="description" name="description"><?php echo (isset($_POST['description']) ? sanitizeInput($_POST['description']) : ''); ?></textarea>
 					</div>
 					<div id="date-time" class="form-group">
 						<div class="row">
