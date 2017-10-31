@@ -141,7 +141,13 @@
 		}
 	}
 
-
+function formatDates() {
+	$string = '';
+	for($i = 0; $i < count($_POST['date']); $i++) {
+		$string .= sanitizeInput($_POST['date'][$i]) . sanitizeInput($_POST['startTime'][$i]) . sanitizeInput($_POST['endTime'][$i]);
+	}
+	return $string;
+}
 
 
 	/**
