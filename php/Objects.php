@@ -199,10 +199,11 @@ class Place { // TODO: need to implement
     }  else { // TODO: Do I need to implement?
 
     }
+		$data = array();
   }
 
   public function create($params = array()) {
-     $sql = "INSERT INTO places (place_id, address, city, state, zip_code, country) VALUES (NULL, ?, ?, ?, ?, ?);";
+     $sql = "INSERT INTO places (place_id, place_name, address, city, state, zip_code, country) VALUES (NULL, ?, ?, ?, ?, ?, ?);";
       if (!$this->db_conn->query($sql, $params)) {
           throw new Exception("Error creating place!");
       }
@@ -308,6 +309,10 @@ class GarageSale { // TODO: need to implement
     public function getData() {
         return $this->data;
     }
+
+	public function exists() {
+		return empty($this->data);
+	}
 }
 
 /**
@@ -833,7 +838,6 @@ class Validation {
 														}
 														$count = 1;
 														foreach($startTime as $time) {
-															echo $time. "<br>";
 															if (!is_numeric(substr($time,0,2))) {
 																$this->addError("Start time {$count} was not a time");
 															} else if (strlen($time) > 0 && $time[2] != ':') {
@@ -856,8 +860,7 @@ class Validation {
 														}
 														$count = 1;
 														foreach($endTime as $time) {
-															echo $time. "<br>";
-															if (is_numeric(substr($time,0,2))) {
+															if (!is_numeric(substr($time,0,2))) {
 																$this->addError("End time {$count} was not a time");
 															} else if (strlen($time) > 0 && $time[2] != ':') {
 																$this->addError("End time {$count} was not a time");
