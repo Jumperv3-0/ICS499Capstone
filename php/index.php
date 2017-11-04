@@ -79,7 +79,7 @@
       <div class="container container-table">
         <h3>Near You</h3>
         <?php
-              echo $pageBuilder->getTable();      // generates a table with 4 random garage sales
+              //echo $pageBuilder->getTable();      // generates a table with 4 random garage sales
             ?>
       </div>
 
