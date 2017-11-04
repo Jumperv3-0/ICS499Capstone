@@ -17,7 +17,7 @@
     );
   if (Cookie::exists($GLOBALS['config']['remember']['cookie_name']) && !Session::exists($GLOBALS['config']['session']['session_name'])) {
     $hash = Cookie::get($GLOBALS['config']['remember']['cookie_name']);
-    $hashCheck = SqlManager::getInstance()->query("SELECT * FROM login_attempts WHERE session_id = ?", array($hash));
+    $hashCheck = SqlManager::getInstance()->query("SELECT * FROM password_saver WHERE session_id = ?", array($hash));
 
     if ($hashCheck->getCount()) {
       $user = new User($hashCheck->getResult()[0]->user_fk_id);
