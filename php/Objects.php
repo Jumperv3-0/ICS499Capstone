@@ -200,132 +200,6 @@ class Item
 }
 
 /**
- * Class represents a place
- */
-class Place
-{ // TODO: need to implement
-    private $db_conn, $data, $json;
-
-    /**
-     * Place constructor.
-     * @param int $place to get from db if not null, else returns current place object
-     */
-    public function __construct($place = null)
-    {
-        $this->db_conn = SqlManager::getInstance();
-        if ($place) {
-            $this->find($place);
-        } else { // TODO: Do I need to implement?
-
-        }
-        $this->json = array();
-        // $this->data = array();
-    }
-
-    public function create($params = array())
-    {
-        $sql = "INSERT INTO places (place_id, street_number, route, locality, administrative_area_level_1, postal_code, country, lat, lng) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?);";
-        if (count($this->json) > 0) {
-            $locationArray = $this->json['results'][0]['address_components'];
-            $lat_lng_array = $this->json['results'][0]['geometry']['location'];
-            $params = array(
-                $locationArray[0]['short_name'],    // street_number
-                $locationArray[1]['short_name'],    // route
-                $locationArray[2]['short_name'],    // locality
-                $locationArray[4]['short_name'],    // admin_area_lvl_1
-                $locationArray[5]['short_name'],    // country
-                $locationArray[6]['short_name'],    // postal_code
-                $lat_lng_array['lat'],              // latitude
-                $lat_lng_array['lng']               // longitude
-            );
-        }
-        if (!$this->db_conn->query($sql, $params)) {
-            throw new Exception("Error creating place!");
-        }
-    }
-
-    public function find($place = null)
-    {
-        if ($place) {
-            $sql = "SELECT * FROM places WHERE place_id = ?";
-            $result = $this->db_conn->query($sql, array($place));
-            if ($result->getCount()) {
-                $this->data = $result->getResult()[0];
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    public function exists()
-    {
-        return empty($this->data);
-    }
-
-    public function edit($params = array(), $place_id)
-    {
-        $sql = "UPDATE places SET route = ? , street_number = ?, locality = ?, administrative_area_level_1 = ?, postal_code = ?, country = ?, lat = ?, lng = ? WHERE place_id = ?";
-        if ($place_id) {
-            $found = $this->find($place_id);
-            if ($found) {
-                $place_id = $this->data()->place_id;
-                array_push($params, $place_id);
-                $result = $this->db_conn->query($sql, $params);
-                if ($result->getError()) {
-                    return true;
-                }
-            }
-        } else {
-            if ($this->exists()) {
-                $place_id = $this->data()->place_id;
-                array_push($params, $place_id);
-                $result = $this->db_conn->query($sql, $params);
-                if ($result->getError()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * TODO: Need to implement
-     */
-    public function remove()
-    {
-
-    }
-
-    /**
-     * Sends get request to google json api to return location information
-     * @param $place , to request info on
-     * @param $key , for google api
-     * @throws Exception loading place from google
-     * @return JSON Object that represents a location
-     */
-    public function getPlaceJSON($place, $key = "&key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw")
-    {
-        $url = "https://maps.googleapis.com/maps/api/geocode/json";
-        if (!$place || strcmp($place, "") == 0) {
-            throw new Exception("Place can't be null or blank");
-        }
-        $response = file_get_contents($url . str_replace(" ", "+", $place) . $key);
-        if (!$response) {
-            throw new Exception("Error happened loading place from google");
-        }
-        $this->json = json_decode($response, true);
-        return $this->json; // TODO: remove when done testing
-    }
-
-
-}
-
-/**
  * Class represents a garageSale
  */
 class GarageSale
@@ -856,134 +730,132 @@ class Validation
      */
     public function check($submit_method, $tests = array())
     {
-        foreach ($tests as $test => $rules) {
-            foreach ($rules as $rule => $rule_value) {
-                $value = sanitizeInput($submit_method[$test]);
-                if ($rule === 'required' && empty($value)) {
-                    $this->addError("{$test} is required");
-                } else if (!empty($value)) {
-                    switch ($rule) {
-                        case 'min':
-                            if (strlen($value) < $rule_value) {
-                                $this->addError("{$test} must be a minimum of {$rule_value} characters.");
-                            }
-                            break;
-                        case 'max':
-                            if (strlen($value) > $rule_value) {
-                                $this->addError("{$test} must be a maximum of {$rule_value} characters.");
-                            }
-                            break;
-                        case 'matches':
-                            if ($value != sanitizeInput($submit_method[$rule_value])) {
-                                $this->addError("{$rule_value} must match {$test}");
-                            }
-                            break;
-                        case 'unique':
-                            $check = $this->db_conn->query("SELECT * FROM {$rule_value} WHERE {$test} = '{$value}'", array());
-                            if ($check->getCount() > 0) {
-                                $this->addError("{$test} alread exists.");
-                            }
-                            break;
-                        case 'email':
-                            $email_address = sanitizeInput($submit_method[$rule]);
-                            if (!filter_var($email_address, FILTER_VALIDATE_EMAIL)) {
-                                $this->addError("{$test} was not a valid email.");
-                            }
-                            break;
-                        case 'phone':
-                            $phone_number = sanitizeInput($submit_method[$rule]);
-                            $phone_number = preg_replace('/[\s+\(\)\-]+/', '', $phone_number);
-                            if (!is_numeric($phone_number)) {
-                                $this->addError("Phone number was not valid.");
-                            }
-                            break;
-                        case 'address': // TODO: need to implement
-                            $address = sanitizeInput($submit_method[$test]);
-                            $addressArray = explode(",", $address);
-                            if (count($addressArray) < 3) {
-                                $this->addError("Address was not valid.");
-                            } else {
-                                foreach ($addressArray as $field) {
-                                    if (strlen($field) < 2) {
-                                        $this->addError("Address was not valid.");
-                                        break;
-                                    }
-                                }
-                            }
-                            break;
-                        case 'image': // TODO: need to implement
-
-                            break;
-                        case 'date':
-                            $dates = array();
-                            for ($i = 0; $i < count($value); $i++) {
-                                $dates[] = sanitizeInput($submit_method[$rule][$i]);
-                            }
-                            $count = 1;
-                            foreach ($dates as $date) {
-                                if (!is_numeric(substr($date, 0, 4))) {
-                                    $this->addError("Date {$count} was not valid");
-                                } else if ($date[4] != '-') {
-                                    $this->addError("Date {$count} was not valid");
-                                } else if (!is_numeric(substr($date, 5, 2))) {
-                                    $this->addError("Date {$count} was not valid");
-                                } else if ($date[7] != '-') {
-                                    $this->addError("Date {$count} was not valid");
-                                } else if (!is_numeric(substr($date, 8))) {
-                                    $this->addError("Date {$count} was not valid");
-                                } else if ((int)substr($date, 0, 4) < (int)date("Y") || (int)substr($date, 5, 2) < (int)date("m") || (int)substr($date, 8) < (int)date("d")) {
-                                    $this->addError("Date {$count} can not be before today");
-                                }
-                                $count++;
-                            }
-                            break;
-                        case 'startTime':
-                            $startTime = array();
-                            for ($i = 0; $i < count($value); $i++) {
-                                $startTime[] = sanitizeInput($submit_method[$rule][$i]);
-                            }
-                            $count = 1;
-                            foreach ($startTime as $time) {
-                                if (!is_numeric(substr($time, 0, 2))) {
-                                    $this->addError("Start time {$count} was not a time");
-                                } else if (strlen($time) > 0 && $time[2] != ':') {
-                                    $this->addError("Start time {$count} was not a time");
-                                } else if (!is_numeric(substr($time, 3, 2))) {
-                                    $this->addError("Start time {$count} was not a time");
-                                }
-                                /* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
-                                if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
-                                    $this->addError("Time {$count} can not be before now");
-                                }*/
-                                $count++;
-                            }
-
-                            break;
-                        case 'endTime': // TODO: need to implement
-                            $endTime = array();
-                            for (!$i = 0; $i < count($value); $i++) {
-                                $endTime[] = sanitizeInput($submit_method[$rule][$i]);
-                            }
-                            $count = 1;
-                            foreach ($endTime as $time) {
-                                if (!is_numeric(substr($time, 0, 2))) {
-                                    $this->addError("End time {$count} was not a time");
-                                } else if (strlen($time) > 0 && $time[2] != ':') {
-                                    $this->addError("End time {$count} was not a time");
-                                } else if (!is_numeric(substr($time, 3, 2))) {
-                                    $this->addError("End time {$count} was not a time");
-                                }
-                                /* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
-                                if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
-                                    $this->addError("Time {$count} can not be before now");
-                                }*/
-                                $count++;
-                            }
-                            break;
-                    }
+      foreach ($tests as $test => $rules) {
+        foreach ($rules as $rule => $rule_value) {
+          $value = sanitizeInput($submit_method[$test]);
+          if ($rule === 'required' && empty($value)) {
+            $this->addError("{$test} is required");
+          } else if (!empty($value)) {
+            switch ($rule) {
+              case 'min':
+                if (strlen($value) < $rule_value) {
+                  $this->addError("{$test} must be a minimum of {$rule_value} characters.");
                 }
+                break;
+              case 'max':
+                if (strlen($value) > $rule_value) {
+                  $this->addError("{$test} must be a maximum of {$rule_value} characters.");
+                }
+                break;
+              case 'matches':
+                if ($value != sanitizeInput($submit_method[$rule_value])) {
+                  $this->addError("{$rule_value} must match {$test}");
+                }
+                break;
+              case 'unique':
+                $check = $this->db_conn->query("SELECT * FROM {$rule_value} WHERE {$test} = '{$value}'", array());
+                if ($check->getCount() > 0) {
+                  $this->addError("{$test} alread exists.");
+                }
+                break;
+              case 'email':
+                $email_address = sanitizeInput($submit_method[$rule]);
+                if (!filter_var($email_address, FILTER_VALIDATE_EMAIL)) {
+                  $this->addError("{$test} was not a valid email.");
+                }
+                break;
+              case 'phone':
+                $phone_number = sanitizeInput($submit_method[$rule]);
+                $phone_number = preg_replace('/[\s+\(\)\-]+/', '', $phone_number);
+                if (!is_numeric($phone_number)) {
+                  $this->addError("Phone number was not valid.");
+                }
+                break;
+              case 'address': // TODO: need to implement
+                $address = sanitizeInput($submit_method[$test]);
+                $addressArray = explode(",", $address);
+                if (count($addressArray) < 3) {
+                  $this->addError("Address was not valid.");
+                } else {
+                  foreach ($addressArray as $field) {
+                    if (strlen($field) < 2) {
+                      $this->addError("Address was not valid.");
+                      break;
+                    }
+                  }
+                }
+                break;
+              case 'image': // TODO: need to implement
+                break;
+              case 'date':
+                $dates = array();
+                for ($i = 0; $i < count($value); $i++) {
+                  $dates[] = sanitizeInput($submit_method[$rule][$i]);
+                }
+                $count = 1;
+                foreach ($dates as $date) {
+                  if (!is_numeric(substr($date, 0, 4))) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ($date[4] != '-') {
+                    $this->addError("Date {$count} was not valid");
+                  } else if (!is_numeric(substr($date, 5, 2))) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ($date[7] != '-') {
+                    $this->addError("Date {$count} was not valid");
+                  } else if (!is_numeric(substr($date, 8))) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ((int)substr($date, 0, 4) < (int)date("Y") || (int)substr($date, 5, 2) < (int)date("m") || (int)substr($date, 8) < (int)date("d")) {
+                    $this->addError("Date {$count} can not be before today");
+                  }
+                  $count++;
+                }
+                break;
+              case 'startTime':
+                $startTime = array();
+                for ($i = 0; $i < count($value); $i++) {
+                  $startTime[] = sanitizeInput($submit_method[$rule][$i]);
+                }
+                $count = 1;
+                foreach ($startTime as $time) {
+                  if (!is_numeric(substr($time, 0, 2))) {
+                    $this->addError("Start time {$count} was not a time");
+                    } else if (strlen($time) > 0 && $time[2] != ':') {
+                      $this->addError("Start time {$count} was not a time");
+                    } else if (!is_numeric(substr($time, 3, 2))) {
+                      $this->addError("Start time {$count} was not a time");
+                    }
+                    /* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
+                    if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
+                      $this->addError("Time {$count} can not be before now");
+                    }*/
+                    $count++;
+                }
+                break;
+              case 'endTime': // TODO: need to implement
+                $endTime = array();
+                for (!$i = 0; $i < count($value); $i++) {
+                  $endTime[] = sanitizeInput($submit_method[$rule][$i]);
+                }
+                $count = 1;
+                foreach ($endTime as $time) {
+                  if (!is_numeric(substr($time, 0, 2))) {
+                    $this->addError("End time {$count} was not a time");
+                  } else if (strlen($time) > 0 && $time[2] != ':') {
+                    $this->addError("End time {$count} was not a time");
+                  } else if (!is_numeric(substr($time, 3, 2))) {
+                    $this->addError("End time {$count} was not a time");
+                  }
+                  /* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
+                  if ((int)substr($time,0,2) < (int)date("H") || (int)substr($time,3,2) < (int)date("i")) {
+                    $this->addError("Time {$count} can not be before now");
+                  }*/
+                  $count++;
+                }
+                break;
             }
+          }
         }
+      }
 
         if (empty($this->errors)) {
             $this->passed = true;
@@ -1028,131 +900,115 @@ class Validation
 /**
  * Class represents a random token string to prevent cross site attacks
  */
-class Token
-{
-    /**
-     * Generates a random token string
-     * @author Gary
-     * @return string token string generated
-     */
-    public static function generate()
-    {
-        return Session::put($GLOBALS['config']['session']['token_name'], md5(uniqid()));
-    }
+class Token {
+  /**
+   * Generates a random token string
+   * @author Gary
+   * @return string token string generated
+   */
+  public static function generate() {
+    return Session::put($GLOBALS['config']['session']['token_name'], md5(uniqid()));
+  }
 
-    /**
-     * Checks to see if two tokens match
-     * @author Gary
-     * @param  string $token to be checked
-     * @return boolean  true if tokens match, else false
-     */
-    public static function check($token)
-    {
-        $tokenName = $GLOBALS['config']['session']['token_name'];
-
-        if (Session::exists($tokenName) && $token === Session::get($tokenName)) {
-            Session::delete($tokenName);
-            return true;
-        }
-        return false;
+  /**
+   * Checks to see if two tokens match
+   * @author Gary
+   * @param  string $token to be checked
+   * @return boolean  true if tokens match, else false
+   */
+  public static function check($token) {
+    $tokenName = $GLOBALS['config']['session']['token_name'];
+    if (Session::exists($tokenName) && $token === Session::get($tokenName)) {
+      Session::delete($tokenName);
+      return true;
     }
+    return false;
+  }
 }
 
 /**
  * Class that handles seeion mangagement
  */
-class Session
-{
-    /**
-     * Deletes a session variable
-     * @author Gary
-     * @param string $name of session var to delete
-     */
-    public static function delete($name)
-    {
-        if (self::exists($name)) {
-            unset($_SESSION[$name]);
-        }
+class Session {
+  /**
+   * Deletes a session variable
+   * @author Gary
+   * @param string $name of session var to delete
+   */
+  public static function delete($name) {
+    if (self::exists($name)) {
+      unset($_SESSION[$name]);
     }
+  }
 
-    /**
-     * Checks to see if a session exists
-     * @author Gary
-     * @param  string $name of session var to check
-     * @return boolean true if the session exists, else false
-     */
-    public static function exists($name)
-    {
-        return (isset($_SESSION[$name])) ? true : false;
-    }
+  /**
+   * Checks to see if a session exists
+   * @author Gary
+   * @param  string $name of session var to check
+   * @return boolean true if the session exists, else false
+   */
+  public static function exists($name) {
+    return (isset($_SESSION[$name])) ? true : false;
+  }
 
-    /**
-     * Puts a value in session variable
-     * @author Gary
-     * @param  string $name of session variable
-     * @param  string $value to put in session variable
-     * @return string value inserted
-     */
-    public static function put($name, $value)
-    {
-        return $_SESSION[$name] = $value;
-    }
+  /**
+   * Puts a value in session variable
+   * @author Gary
+   * @param  string $name of session variable
+   * @param  string $value to put in session variable
+   * @return string value inserted
+   */
+  public static function put($name, $value) {
+      return $_SESSION[$name] = $value;
+  }
 
-    /**
-     * Gets a session variable
-     * @author Gary
-     * @param  string $name of sesion variable to get
-     * @return string value of session variable
-     */
-    public static function get($name)
-    {
-        return $_SESSION[$name];
-    }
+  /**
+   * Gets a session variable
+   * @author Gary
+   * @param  string $name of sesion variable to get
+   * @return string value of session variable
+   */
+  public static function get($name) {
+      return $_SESSION[$name];
+  }
 
-    /**
-     * Sets a one time message
-     * @author Gary
-     * @param  string $name of session variable
-     * @param  string [$message = ''] message to be saved
-     * @return string value of session variable
-     */
-    public static function flash($name, $message = '')
-    {
-        if (self::exists($name)) {
-            $session = self::get($name);
-            self::delete($name);
-            return $session;
-        } else {
-            self::put($name, $message);
-        }
+  /**
+   * Sets a one time message
+   * @author Gary
+   * @param  string $name of session variable
+   * @param  string [$message = ''] message to be saved
+   * @return string value of session variable
+   */
+  public static function flash($name, $message = '') {
+    if (self::exists($name)) {
+      $session = self::get($name);
+      self::delete($name);
+      return $session;
+    } else {
+      self::put($name, $message);
     }
+  }
 }
 
-class cookie
-{
+class cookie {
+  public static function exists($name) {
+      return (isset($_COOKIE[$name])) ? true : false;
+  }
 
-    public static function exists($name)
-    {
-        return (isset($_COOKIE[$name])) ? true : false;
-    }
+  public static function get($name) {
+      return $_COOKIE[$name];
+  }
 
-    public static function get($name)
-    {
-        return $_COOKIE[$name];
+  public static function put($name, $value, $expiry) {
+    if (setcookie($name, $value, time() + $expiry, '/')) {
+      return true;
     }
+    return false;
+  }
 
-    public static function put($name, $value, $expiry)
-    {
-        if (setcookie($name, $value, time() + $expiry, '/')) {
-            return true;
-        }
-        return false;
-    }
-
-    public static function delete($name)
-    {
-        self::put($name, '', time() - 1);
-    }
+  public static function delete($name) {
+    self::put($name, '', time() - 1);
+  }
 }
 
 abstract class DB_Object {
@@ -1171,6 +1027,9 @@ abstract class DB_Object {
 
   public abstract function find($object_id = null);
 
+  // Gets the max index aka the most recently added object
+  // FUTURE: public abstract function lastAdded();
+
   public function exists() {
     return (!empty($this->data)) ? true : false;
   }
@@ -1188,22 +1047,20 @@ class Phone extends DB_Object{
    * Constructor that initiazes class variables
    * @author Gary
    * @param integer [$phone_id = null]       id of phone number desired from db
-   * @param integer [$garage_sale_id = null] id of garage sales the phone number belongs to
    */
-  public function __construct($phone_id = null, $garage_sale_id = null) {
+  public function __construct($phone_id = null) {
     parent::__construct();
-    if ($phone_id != null && $garage_sale_id != null && is_numeric($garage_sale_id)) {
+    if ($phone_id != null) {
       $this->find($phone_id);
-      $this->gsale_id = $garage_sale_id;
     }
   }
 
   public function create($params = array()) {
     $sql = "INSERT INTO phones (phone_id, phone_number) VALUES (NULL, ?);";
-    if (!$this->db_conn->query($sql, $params)) {
-        throw new Exception("Error creating phone number!");
+    $result = $this->db_conn->query($sql, $params);
+    if (!$result->getError()) {
+      throw new Exception("Error creating phone number!");
     }
-    // TODO: Insert into garage_sales_phones
   }
 
   public function edit($params = array(), $phone_id = null) {
@@ -1276,6 +1133,131 @@ class Phone extends DB_Object{
       return null;
     }
     return $phone_number;
+  }
+}
+
+class Place extends DB_Object {
+  private $json;
+
+  public function __construct($place_id = null) {
+    parent::__construct();
+    if ($place_id) {
+      $this->find($place_id);
+    }
+  }
+
+  public function create($params = array()) {
+    $sql = "INSERT INTO places (place_id, street_number, route, locality, administrative_area_level_1, country, postal_code, lat, lng) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?);";
+    $startIndex = 0;
+    if (count($this->json) > 0 && strcmp($this->json['results'][0]['address_components'][3]['types'][0], "premise") == 0) {
+      $locationArray = $this->json['results'][0]['address_components'];
+      $lat_lng_array = $this->json['results'][0]['geometry']['location'];
+      $params = array(
+        $locationArray[1]['short_name'],    // street_number
+        $locationArray[2]['short_name'],    // route
+        $locationArray[3]['short_name'],    // locality
+        $locationArray[5]['short_name'],    // admin_area_lvl_1
+        $locationArray[6]['short_name'],    // country
+        $locationArray[7]['short_name'],    // postal_code
+        $lat_lng_array['lat'],              // latitude
+        $lat_lng_array['lng']               // longitude
+      );
+    } else {
+      $locationArray = $this->json['results'][0]['address_components'];
+      $lat_lng_array = $this->json['results'][0]['geometry']['location'];
+      $params = array(
+        $locationArray[0]['short_name'],    // street_number
+        $locationArray[1]['short_name'],    // route
+        $locationArray[2]['short_name'],    // locality
+        $locationArray[4]['short_name'],    // admin_area_lvl_1
+        $locationArray[5]['short_name'],    // country
+        $locationArray[6]['short_name'],    // postal_code
+        $lat_lng_array['lat'],              // latitude
+        $lat_lng_array['lng']               // longitude
+      );
+    }
+    $result = $this->db_conn->query($sql, $params);
+    if ($result->getError()) {
+      throw new Exception("Error creating place!");
+    }
+  }
+
+  public function edit($params = array(), $object_id = null) {
+    $sql = "UPDATE places SET route = ? , street_number = ?, locality = ?, administrative_area_level_1 = ?, postal_code = ?, country = ?, lat = ?, lng = ? WHERE place_id = ?";
+    if ($place_id) {
+      $found = $this->find($place_id);
+      if ($found) {
+        $place_id = $this->data()->place_id;
+        array_push($params, $place_id);
+        $result = $this->db_conn->query($sql, $params);
+        if ($result->getError()) {
+          return true;
+        }
+      }
+    } else {
+      if ($this->exists()) {
+        $place_id = $this->data()->place_id;
+        array_push($params, $place_id);
+        $result = $this->db_conn->query($sql, $params);
+        if ($result->getError()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public function remove($place_id = null) {
+    $sql = "DELETE FROM garage_sales_places WHERE place_fk_id = ?;";
+    $sql = "DELETE FROM places WHERE place_id = ?;";
+    if (!$place_id && $this->exists()) {
+      // TODO: remove current place
+    }
+    if ($place_id != null) {
+      if ($this->find($place_id)) {
+        $result = $this->db_conn->query($sql, array($place_id));
+        if (!$result->getError()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public function find($place = null) {
+    if ($place) {
+      $sql = "SELECT * FROM places WHERE place_id = ?";
+      $result = $this->db_conn->query($sql, array($place));
+      if ($result->getCount()) {
+        $this->data = $result->getResult()[0];
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function getPlaceJSON($place, $key = "&key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw") {
+    $url = "https://maps.googleapis.com/maps/api/geocode/json?";
+    $searchType = "";
+    if (is_array($place)) {
+      $search = "latlng={$place['lat']},{$place['lng']}";
+    } else {
+      if (!$place || strcmp($place, "") == 0) {
+        throw new Exception("Place can't be null or blank");
+      }
+      $search = "address=" . str_replace(" ", "+", $place);
+    }
+    $response = file_get_contents($url . $search . $key);
+    if (!$response) {
+      throw new Exception("Error happened loading place from google");
+    }
+    $json = json_decode($response, true);
+    if (strcmp($json['status'], "OK") == 0) {
+      $this->json = $json;
+    } else {
+      throw new Exception("Error happened loading place from google");
+    }
+    return $this->json;
   }
 }
 
