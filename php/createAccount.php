@@ -1,12 +1,10 @@
 <?php
-	require_once 'init.php';
-    require_once 'Objects.php';
-    require_once 'functions.php';
-
-
+require_once 'init.php';
+require_once 'Objects.php';
+require_once 'functions.php';
 ?>
-  <!DOCTYPE html>
-  <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
   <head>
     <title>
@@ -23,115 +21,113 @@
 
   <body>
     <header>
-      <?php
-                $pageBuilder = new RegisterPage();
-                $pageBuilder->getHeader();
-            ?>
+    <?php
+      $pageBuilder = new RegisterPage();
+      $pageBuilder->getHeader();
+    ?>
     </header>
-    <h1>Create a G=Sale Account.</h1>
+
     <div class="container">
+      <h1>Create a G=Sale Account.</h1>
       <?php
+      if ($_SERVER['REQUEST_METHOD'] == 'POST') {                // check to see a form was submited by $_POST
+        if (isset($_POST['submit'])) {                         // check to see if data was submitted
+          if (Token::check(sanitizeInput($_POST['token']))) {// protects agains resumitting form multiple times
+            $validator = new Validation();                  // creates new validation object
+            $validation = $validator->check($_POST, array(  // calles check function giving it submit type and an array of rules
+              'username' => array(        // rules for username
+                'required' => true,     // cant be empty
+                'min' => 4,             // min length is 4 char
+                'max' => 22,            // max length is 22 char
+                'unique' => 'users'     // username must be unique in users table
+              ),
+              'password' => array(
+                'required' => true,
+                'min' => 6,
+                'max' => 22
+              ),
+              'password_again' => array(
+                'required' => true,
+                'min' => 6,
+                'max' => 22,
+                'matches' => 'password' // password_again must match password
+              ),
+              'fname' => array(
+                'required' => true,
+                'min' => 2,
+                'max' => 30
+              ),
+              'lname' => array(
+                'required' => true,
+                'min' => 2,
+                'max' => 30
+              ),
+              'email' => array(
+                'required' => true,
+                'min' => 2,
+                'max' => 50,
+                'email' => true         // must be an email
+              )
+            ));
 
-				if ($_SERVER['REQUEST_METHOD'] == 'POST') {                // check to see a form was submited by $_POST
-					if (isset($_POST['submit'])) {                         // check to see if data was submitted
-                        if (Token::check(sanitizeInput($_POST['token']))) {// protects agains resumitting form multiple times
-                            $validator = new Validation();                  // creates new validation object
-                            $validation = $validator->check($_POST, array(  // calles check function giving it submit type and an array of rules
-                                'username' => array(        // rules for username
-                                    'required' => true,     // cant be empty
-                                    'min' => 4,             // min length is 4 char
-                                    'max' => 22,            // max length is 22 char
-                                    'unique' => 'users'     // username must be unique in users table
-                                ),
-                                'password' => array(
-                                    'required' => true,
-                                    'min' => 6,
-                                    'max' => 22
-                                ),
-                                'password_again' => array(
-                                    'required' => true,
-                                    'min' => 6,
-                                    'max' => 22,
-                                    'matches' => 'password' // password_again must match password
-                                ),
-                                'fname' => array(
-                                    'required' => true,
-                                    'min' => 2,
-                                    'max' => 30
-                                ),
-                                'lname' => array(
-                                    'required' => true,
-                                    'min' => 2,
-                                    'max' => 30
-                                ),
-                                'email' => array(
-                                    'required' => true,
-                                    'min' => 2,
-                                    'max' => 50,
-                                    'email' => true         // must be an email
-                                )
-                            ));
-
-                            if ($validation->passed()) { // create place then create user for user
-                                $user = new User();
-                                $place = new Place();
-                                try {
-                                    $user->create(array(
-                                        sanitizeInput($_POST['username']),
-                                        password_hash(sanitizeInput($_POST['password']), PASSWORD_DEFAULT),
-                                        sanitizeInput($_POST['fname']),
-                                        sanitizeInput($_POST['lname']),
-                                        sanitizeInput($_POST['email'])
-																		));
-                                } catch(Exception $e) {
-                                    die ($e->getMessage());
-                                }
-                                Session::flash('success', 'You registered successfully!');
-                                Redirect::page('index.php');
-                            } else { // Display errors
-                               foreach($validation->getErrors() as $error) {
-                                   echo $error . "<br>";
-                               }
-                            }
-                        }
-
-					}
-				}
-			?>
-        <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
-          <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : ''); ?>">
-          </div>
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" class="form-control" id="password" name="password">
-          </div>
-          <div class="form-group">
-            <label for="password_again">Reenter Password:</label>
-            <input type="password" class="form-control" id="password_again" name="password_again">
-          </div>
-          <div class="form-group">
-            <label for="fname">First Name:</label>
-            <input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : ''); ?>">
-          </div>
-          <div class="form-group">
-            <label for="lname">Last Name:</label>
-            <input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : ''); ?>">
-          </div>
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : ''); ?>">
-          </div>
-          <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-          <button type="submit" class="btn btn-default" name="submit">Submit</button>
-        </form>
+            if ($validation->passed()) {  // all inputs valid
+              $user = new User();       // get current user
+              try {
+                $user->create(array(
+                  sanitizeInput($_POST['username']),
+                  password_hash(sanitizeInput($_POST['password']), PASSWORD_DEFAULT),
+                  sanitizeInput($_POST['fname']),
+                  sanitizeInput($_POST['lname']),
+                  sanitizeInput($_POST['email'])
+                ));
+              } catch(Exception $e) {
+                die ($e->getMessage());
+              }
+              Session::flash('success', 'You registered successfully!');
+              Redirect::page('index.php');
+            } else { // Display errors
+              foreach($validation->getErrors() as $error) {
+                echo $error . "<br>";
+              }
+            }
+          }
+        }
+      }
+      ?>
+      <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : ''); ?>">
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" class="form-control" id="password" name="password">
+        </div>
+        <div class="form-group">
+          <label for="password_again">Reenter Password:</label>
+          <input type="password" class="form-control" id="password_again" name="password_again">
+        </div>
+        <div class="form-group">
+          <label for="fname">First Name:</label>
+          <input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : ''); ?>">
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name:</label>
+          <input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : ''); ?>">
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : ''); ?>">
+        </div>
+        <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+        <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
+      </form>
     </div>
     <footer>
       <?php
-        PageBuilder::getFooter();
+      PageBuilder::getFooter();
       ?>
     </footer>
   </body>
 
-  </html>
+</html>
