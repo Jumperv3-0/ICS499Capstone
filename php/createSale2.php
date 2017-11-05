@@ -1,18 +1,18 @@
 <?php
-    require_once 'init.php';
-    require_once 'Objects.php';
-    //    TODO: uncomment code when page is done
-    $user = new User();
-    if (!$user->isLoggedIn()) {
-        Redirect::page('404.php');
-    }
+require_once 'init.php';
+require_once 'Objects.php';
+//    TODO: uncomment code when page is done
+$user = new User();
+if (!$user->isLoggedIn()) {
+  Redirect::page('404.php');
+}
 ?>
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
-<head>
+  <head>
     <title>
-        <?php PageBuilder::getTitle() ?>
+      <?php PageBuilder::getTitle() ?>
     </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,31 +21,31 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/styles.css">
-</head>
+  </head>
 
-<body>
-<script>
-    // FUTURE: add javascript to its own page if time
-    var numberOfDays = 2;
+  <body>
+    <script>
+      // FUTURE: add javascript to its own page if time
+      var numberOfDays = 2;
 
-    /**
-     * Adds a date selector to the date-time div
-     * @author Gary
-     */
-    function addDate() {
+      /**
+       * Adds a date selector to the date-time div
+       * @author Gary
+       */
+      function addDate() {
 
         var o = document.getElementById('date-time');
         var childList = o.childNodes;
         o.insertBefore(makeDate(numberOfDays++), childList[childList.length - 2]);
-    }
+      }
 
-    /**
-     *
-     * @author Gary
-     * @param   {int}     number of date selectors on page
-     * @returns {element} of new date input selectors
-     */
-    function makeDate(number) {
+      /**
+       *
+       * @author Gary
+       * @param   {int}     number of date selectors on page
+       * @returns {element} of new date input selectors
+       */
+      function makeDate(number) {
         var row = document.createElement('div');
         var child1 = document.createElement('div');
         var child2 = document.createElement('div');
@@ -76,208 +76,198 @@
         child2.appendChild(input2);
         child3.appendChild(input3);
         return row;
-    }
+      }
 
-    //-----------------------------------Google maps autocomplete---------------------//
-    // This example displays an address form, using the autocomplete feature
-    // of the Google Places API to help users fill in the information.
+      //-----------------------------------Google maps autocomplete---------------------//
+      // This example displays an address form, using the autocomplete feature
+      // of the Google Places API to help users fill in the information.
 
-    // This example requires the Places library. Include the libraries=places
-    // parameter when you first load the API. For example:
-    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
 
-    var autocomplete;
+      var autocomplete;
 
-    function initAutocomplete() {
+      function initAutocomplete() {
         // Create the autocomplete object, restricting the search to geographical
         // location types.
         autocomplete = new google.maps.places.Autocomplete(
-            /** @type {!HTMLInputElement} */
-            (document.getElementById('location')), {
-                types: ['geocode']
-            });
-    }
+          /** @type {!HTMLInputElement} */
+          (document.getElementById('location')), {
+            types: ['geocode']
+          });
+      }
 
-    function phoneFormat() { // FUTURE: make phone format work with deleteing numbers
+      function phoneFormat() { // FUTURE: make phone format work with deleteing numbers
         var el = document.getElementById('phone');
         var phoneNumber = el.value;
         phoneNumber = phoneNumber.replace(/[^0-9|\(\)\-]/g, '');
         if (phoneNumber.length >= 1 && (phoneNumber.charAt(0) != '(' && phoneNumber.charAt(1) != '(' && phoneNumber.charAt(2) != '(')) {
-            phoneNumber = '(' + phoneNumber;
+          phoneNumber = '(' + phoneNumber;
         }
         if (phoneNumber.length >= 4 && (phoneNumber.charAt(4) != ')' && phoneNumber.charAt(4) != ')' && phoneNumber.charAt(5) != ')')) {
-            phoneNumber = phoneNumber + ')';
+          phoneNumber = phoneNumber + ')';
         }
         if (phoneNumber.length >= 5 && phoneNumber.charAt(5) != '-' && phoneNumber.charAt(6) != '-') {
-            phoneNumber = phoneNumber + "-";
+          phoneNumber = phoneNumber + "-";
         }
         if (phoneNumber.length >= 9 && phoneNumber.charAt(9) != '-' && phoneNumber.charAt(10) != '-') {
-            phoneNumber = phoneNumber + "-";
+          phoneNumber = phoneNumber + "-";
         }
         if (phoneNumber.length == 14) {
-            phoneNumber = phoneNumber.replace(/\D/g, '');
-            phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
+          phoneNumber = phoneNumber.replace(/\D/g, '');
+          phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
         }
         if (phoneNumber.length == 15) {
-            phoneNumber = phoneNumber.replace(/\D/g, '');
-            phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
+          phoneNumber = phoneNumber.replace(/\D/g, '');
+          phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
         }
 
         el.value = phoneNumber;
         //alert(phoneNumber);
-    }
+      }
 
-</script>
-<header>
+    </script>
+    <header>
     <?php
-    $pageBuilder = new CreateSalesPage();
-    $pageBuilder->getHeader();
+      $pageBuilder = new CreateSalesPage();
+      $pageBuilder->getHeader();
     ?>
-</header>
-<div class="container">
-    <h1>Create Sale</h1>
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    </header>
+    <div class="container">
+      <h1>Create Sale</h1>
+      <?php
+      if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['submit']) && Token::check(sanitizeInput($_POST['token']))) {
-            $validator = new validation();
-            $rules = array(
-                'sale_name' => array(
-                    'required' => true,
-                    'min' => 4,
-                    'max' => 22
-                ),
-                'description' => array(
-                    'max' => 10000, // FIXME: what is description max size?
-                    'required' => true
-                ),
-                'location' => array(
-                    'required' => true,
-                    'address' => true
-                ),
-                'phone' => array(
-                    'required' => true,
-                    'phone' => true
-                ),
-                'date' => array(
-                    'required' => true,
-                    'date' => true
-                ),
-                'startTime' => array(
-                    'required' => true,
-                    'startTime' => true
-                ),
-                'endTime' => array(
-                    'required' => true,
-                    'endTime' => true
-                    //'after' => 'startTime'
+          $validator = new validation();
+          $rules = array(
+            'sale_name' => array(
+              'required' => true,
+              'min' => 4,
+              'max' => 22
+            ),
+            'description' => array(
+              'max' => 10000, // FIXME: what is description max size?
+              'required' => true
+            ),
+            'location' => array(
+              'required' => true,
+              'address' => true
+            ),
+            'phone' => array(
+              'required' => true,
+              'phone' => true
+            ),
+            'date' => array(
+              'required' => true,
+              'date' => true
+            ),
+            'startTime' => array(
+              'required' => true,
+              'startTime' => true
+            ),
+            'endTime' => array(
+              'required' => true,
+              'endTime' => true
+              //'after' => 'startTime'
+            ));
+          $validation = $validator->check($_POST, $rules);
+          $image_url = "not_implented.png"; // TODO: need to upload image to downloads folder and create new url and save here
+          $formattedDates = formatDates();
+          if ($validation->passed()) {
+            $user = new User();
+            $gsale = new GarageSale();
+            $place = new Place();
+            try {
+              $address = $_POST['location'];
+              $address = sanitizeInput($_POST['location']);
+              $place->getPlaceJSON("?address=" . $address);
+              $address = sanitizeInput($address);
+              $place->create();
+              if ($place->exists()) {
+                var_dump($place);
+                // create garageSale()
+                $gsale->create(array(
+                  sanitizeInput($_POST['sale_name']),
+                  $image_url,
+                  sanitizeInput($_POST['description']),
+                  $formattedDates,
+                  $place->getData()->place_id,
+                  $user->data()->user_id
                 ));
-            $validation = $validator->check($_POST, $rules);
-            $image_url = "not_implented.png"; // TODO: need to upload image to downloads folder and create new url and save here
-            $formattedDates = formatDates();
-            if ($validation->passed()) {
-                $user = new User();
-                $gsale = new GarageSale();
-                $place = new Place();
-                try {
-                    $address = $_POST['location'];
-                    $address = sanitizeInput($_POST['location']);
-                    $place->getPlaceJSON("?address=" . $address);
-                    $address = sanitizeInput($address);
-                    $place->create();
-                    if ($place->exists()) {
-                        var_dump($place);
-                        // create garageSale()
-                        $gsale->create(array(
-                            sanitizeInput($_POST['sale_name']),
-                            $image_url,
-                            sanitizeInput($_POST['description']),
-                            $formattedDates,
-                            $place->getData()->place_id,
-                            $user->data()->user_id
-                        ));
-                    }
-                } catch (Exception $e) {
-                    die ($e->getMessage());
-                }
-            } else {
-                foreach ($validation->getErrors() as $error) {
-                    echo $error . "<br>";
-                }
+              }
+            } catch (Exception $e) {
+              die ($e->getMessage());
             }
-            //Redirect::page("yourSales.php");
+          } else {
+            foreach ($validation->getErrors() as $error) {
+              echo $error . "<br>";
+            }
+          }
+          //Redirect::page("yourSales.php");
         }
-    }
-    ?>
-    <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
-        <div class="form-group">
+      }
+      ?>
+        <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post" enctype="multipart/form-data">
+          <div class="form-group">
             <label for="sale_name">Name of sale:</label>
-            <input type="text" class="form-control" id="sale_name" name="sale_name"
-                   value="<?php echo(isset($_POST['sale_name']) ? sanitizeInput($_POST['sale_name']) : ''); ?>"
-                   placeholder="Enter name of sale">
-        </div>
-        <div class="form-group">
+            <input type="text" class="form-control" id="sale_name" name="sale_name" value="<?php echo(isset($_POST['sale_name']) ? sanitizeInput($_POST['sale_name']) : ''); ?>" placeholder="Enter name of sale">
+          </div>
+          <div class="form-group">
             <input type="file" id="image" name="image">
-        </div>
-        <div class="form-group">
+          </div>
+          <div class="form-group">
             <label for="description">General Description:</label>
-            <textarea class="form-control" rows="4" cols="50" id="description" name="description"
-                      placeholder="Enter a description of the types of item for sale"><?php echo(isset($_POST['description']) ? sanitizeInput($_POST['description']) : ''); ?></textarea>
-        </div>
-        <div id="date-time" class="form-group">
+            <textarea class="form-control" rows="4" cols="50" id="description" name="description" placeholder="Enter a description of the types of item for sale"><?php echo(isset($_POST['description']) ? sanitizeInput($_POST['description']) : ''); ?></textarea>
+          </div>
+          <div id="date-time" class="form-group">
             <div class="row">
-                <div class="col-sm-6">
-                    <label for="location1">Date:</label>
-                </div>
-                <div class="col-sm-3">
-                    <label for="startTime1">Start Time:</label>
-                </div>
-                <div class="col-sm-3">
-                    <label for="endTime1">End Time:</label>
-                </div>
+              <div class="col-sm-6">
+                <label for="location1">Date:</label>
+              </div>
+              <div class="col-sm-3">
+                <label for="startTime1">Start Time:</label>
+              </div>
+              <div class="col-sm-3">
+                <label for="endTime1">End Time:</label>
+              </div>
             </div>
             <div class="row">
-                <div class="col-xs-12 col-sm-6">
-                    <input type="date" class="form-control" id="date1" name="date[]" value="">
-                </div>
-                <div class="col-xs-12 col-sm-3">
-                    <input type="time" class="form-control" id="startTime1" name="startTime[]" value="">
-                </div>
-                <div class="col-xs-12 col-sm-3">
-                    <input type="time" class="form-control" id="endTime1" name="endTime[]" value="">
-                </div>
+              <div class="col-xs-12 col-sm-6">
+                <input type="date" class="form-control" id="date1" name="date[]" value="">
+              </div>
+              <div class="col-xs-12 col-sm-3">
+                <input type="time" class="form-control" id="startTime1" name="startTime[]" value="">
+              </div>
+              <div class="col-xs-12 col-sm-3">
+                <input type="time" class="form-control" id="endTime1" name="endTime[]" value="">
+              </div>
             </div>
             <div class="row">
-                <br>
-                <div class="col-xs-2 pull-right">
-                    <button type="button" class="btn btn-default btn-green pull-right" id="add_date"
-                            onclick="addDate()">Add Day
-                    </button>
-                </div>
+              <br>
+              <div class="col-xs-2 pull-right">
+                <button type="button" class="btn btn-default btn-green pull-right" id="add_date" onclick="addDate()">Add Day</button>
+              </div>
             </div>
-        </div>
-        <div id="locationField" class="form-group">
+          </div>
+          <div id="locationField" class="form-group">
             <label for="location">Location:</label>
-            <input type="location" class="form-control" id="location" onFocus="geolocate()" name="location"
-                   value="<?php echo(isset($_POST['location']) ? sanitizeInput($_POST['location']) : ''); ?>"
-                   placeholder="Enter location of sale">
-        </div>
-        <div class="form-group">
+            <input type="location" class="form-control" id="location" onFocus="geolocate()" name="location" value="<?php echo(isset($_POST['location']) ? sanitizeInput($_POST['location']) : ''); ?>" placeholder="Enter location of sale">
+          </div>
+          <div class="form-group">
             <label for="phone">Phone:</label>
-            <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX"
-                   onkeypress="phoneFormat()"
-                   value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>">
-        </div>
-        <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-        <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
-    </form>
-</div>
-<footer>
-    <?php
-    PageBuilder::getFooter();
-    ?>
-</footer>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw&libraries=places&callback=initAutocomplete"
-        async defer></script>
-</body>
+            <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>">
+          </div>
+          <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+          <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
+        </form>
+    </div>
+    <footer>
+      <?php
+      PageBuilder::getFooter();
+      ?>
+    </footer>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw&libraries=places&callback=initAutocomplete" async defer></script>
+  </body>
 
-</html>
+  </html>
