@@ -1,12 +1,12 @@
 <?php
-	require_once 'db_config.php';
+	 require_once 'db_config.php';
   require_once 'Objects.php';
 
-		ob_start();
-		session_start();
-		session_regenerate_id();
-	$GLOBALS['config'] = array(
-        'remember' => array(
+  ob_start();
+  session_start();
+  session_regenerate_id();
+  $GLOBALS['config'] = array(
+            'remember' => array(
             'cookie_name' => 'hash',
             'cookie_expire' => 604800
         ),
