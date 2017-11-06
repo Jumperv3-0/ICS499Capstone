@@ -792,6 +792,9 @@ class Validation
                 for ($i = 0; $i < count($value); $i++) {
                   $dates[] = sanitizeInput($submit_method[$rule][$i]);
                 }
+                for ($i = 0; $i < count($submit_method['startTime']); $i++) {
+                  $startTime[] = sanitizeInput($submit_method['startTime'][$i]);
+                }
                 $count = 1;
                 foreach ($dates as $date) {
                   if (!is_numeric(substr($date, 0, 4))) {
@@ -806,9 +809,15 @@ class Validation
                     $this->addError("Date {$count} was not valid");
                   } else if ((int)substr($date, 0, 4) < (int)date("Y") || (int)substr($date, 5, 2) < (int)date("m") || (int)substr($date, 8) < (int)date("d")) {
                     $this->addError("Date {$count} can not be before today");
+                  } else if ((int)substr($date, 0, 4) == (int)date("Y") && (int)substr($date, 5, 2) == (int)date("m") && (int)substr($date, 8) == (int)date("d") && $startTime != -1) {
+                    //https://maps.googleapis.com/maps/api/timezone/json?location=39.6034810,-119.6822510&timestamp=1331766000&key=YOUR_API_KEY
+                    // TODO: get timezone from google to get correct time
                   }
                   $count++;
                 }
+                break;
+              case 'time':
+                $startTime = 0;
                 break;
               case 'startTime':
                 $startTime = array();
@@ -1028,7 +1037,7 @@ abstract class DB_Object {
   public abstract function find($object_id = null);
 
   // Gets the max index aka the most recently added object
-  // FUTURE: public abstract function lastAdded();
+  public abstract function lastAdded();
 
   public function exists() {
     return (!empty($this->data)) ? true : false;
@@ -1102,6 +1111,16 @@ class Phone extends DB_Object{
         $this->data = $result->getResult();
         return true;
       }
+    }
+    return false;
+  }
+
+  public function lastAdded() {
+    $sql = "SELECT  MAX(phone_id) AS phone_id FROM phones;";
+    $result = $this->db_conn->query($sql, array());
+    if ($result->getCount() > 0) {
+      $this->data = $result->getResult();
+      return true;
     }
     return false;
   }
@@ -1236,6 +1255,16 @@ class Place extends DB_Object {
     return false;
   }
 
+  public function lastAdded() {
+    $sql = "SELECT  MAX(place_id) AS place_id FROM places;";
+    $result = $this->db_conn->query($sql, array());
+    if ($result->getCount() > 0) {
+      $this->data = $result->getResult();
+      return true;
+    }
+    return false;
+  }
+
   public function getPlaceJSON($place, $key = "&key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw") {
     $url = "https://maps.googleapis.com/maps/api/geocode/json?";
     $searchType = "";
@@ -1258,6 +1287,14 @@ class Place extends DB_Object {
       throw new Exception("Error happened loading place from google");
     }
     return $this->json;
+  }
+}
+
+class Time {
+  private $time_zone;
+
+  public static function getTimeZone() {
+    // TODO: get request from google time api
   }
 }
 
