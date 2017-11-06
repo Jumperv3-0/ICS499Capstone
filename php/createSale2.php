@@ -77,7 +77,10 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         input3.id = 'endTime' + number;
         input4.id = 'button' + number;
         input4.innerHTML = 'Delete <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>';
-        input4.onclick = row.style = 'hidden';
+        input4.onclick = function() {
+          document.getElementById('date-time').removeChild(row);
+          numberOfDays--;
+        };
         row.appendChild(child1);
         row.appendChild(child2);
         row.appendChild(child3);
@@ -165,6 +168,19 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
               'max' => 1500,
               'required' => true
             ),
+             'date' => array(
+              'required' => true,
+              'date' => true
+              // TODO: chage date rules after today
+            ),
+             'startTime' => array(
+              'required' => true,
+              'startTime' => true
+            ),
+            'endTime' => array(
+              'required' => true,
+              'endTime' => true
+            ),
             'location' => array(
               'required' => true,
               'address' => true
@@ -172,38 +188,38 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
             'phone' => array(
               'required' => true,
               'phone' => true
-            ),
-            'date' => array(
-              'required' => true,
-              'date' => true
-              // TODO: chage date rules after today
-            ),
-            'startTime' => array(
-              'required' => true,
-              'time' => true,
-              'startTime' => true
-              // TODO: create rule for before endTime
-              // TODO: create rule > current time of current day
-            ),
-            'endTime' => array(
-              'required' => true,
-              'time' => true,
-              'endTime' => true
-              //'after' => 'startTime'
-              // TODO: create rule for time
-              // TODO: create rule for after startTime
-              // TODO: create test for img
             ));
+          $image = new ImageProcesser("image");
           $validation = $validator->check($_POST, $rules);
-          $formattedDates = formatDates();  // FIXME: create date object to format dates to put in gsales table
-          if ($validation->passed()) {      // input passed all validaiton
+          $formattedDates = formatDates();
+          if ($validation->passed() && count($image->getErrors()) === 0) {      // input passed all validaiton
             try {
+              $user = new User();
+              $place = new Place();
+              $place->getPlaceJSON(sanitizeInput($_POST['location']));
+              $place->create();
+              $phone = new Phone();
+              $phone->create(array(Phone::formatNumber(sanitizeInput($_POST['phone']))));
+              $gsale = new GarageSale();
+              $gsale->create(array(sanitizeInput($_POST['sale_name']), $image->getNewName(), sanitizeInput($_POST['description']), $formattedDates));
               // TODO: create Place, GarageSale, Phone
+              $db_conn = SqlManager::getInstance();
+              $sql = "INSERT INTO garage_sales_phones (garage_sale_fk_id, phone_fk_id) VALUES (?, ?);";
+              $result = $db_conn->query($sql, array($gsale->lastAdded()->gsale_id, $phone->lastAdded()->gsale_id));
+              var_dump($result);
+              $sql = "INSERT INTO garage_sales_places (garage_sale_fk_id, place_fk_id) VALUES (?, ?);";
+              $result = $db_conn->query($sql, array($gsale->lastAdded()->gsale_id, $place->lastAdded()->gsale_id));
+              $sql = "INSERT INTO garage_sales_users (user_fk_id, garage_sale_fk_id) VALUES (?, ?);";
+              $result = $db_conn->query($sql, array($user->Data()->user_id, $gsale->lastAdded()->gsale_id));
+              // FIXME: ->lastAdded() returns true or false not $data call getData()->id
               // TODO: Link place and gsale, phone and gsale, user and gsale
             } catch (Exception $e) {
               die ($e->getMessage());
             }
           } else {
+            if (count($image->getErrors()) > 0) {
+              echo $image->getErrors()[0] . "<br>";
+            }
             foreach ($validation->getErrors() as $error) {
               echo $error . "<br>";
             }
