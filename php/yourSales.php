@@ -42,7 +42,7 @@ if (!$user->isLoggedIn()) {
     <div class="container">
       <div class="well">
         <h3>Plan a new Garage Sale.</h3>
-        <a class="btn btn-default btn-green" href="createSale2.php">
+        <a class="btn btn-green" href="createSale2.php">
           Create Sale
           <span class="glyphicon glyphicon-plus-sign"></span>
         </a> //Add List of your sales.
