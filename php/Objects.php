@@ -1413,17 +1413,10 @@ class ImageProcesser {
 
 }
 
-
-
-
 // TODO: change all dabase objects subclass to use DB_Object class
 // TODO: fix indexpage display sales near you table
-// TODO: add remove button to dates on create sale
 // TODO: your sales page html needs to be finsihed
-// TODO: validate img
 // TODO: finish create sale
-// TODO: Change Users_phones to garage_sale_phones
-// TODO: how to implement catagories for items for sale?
+// TODO: how to implement keywords catagories for items for sale?
 // FUTURE: change each class to their own file then create Objects.php file that requires all objects?
-
 ?>
