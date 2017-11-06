@@ -1,9 +1,8 @@
 <?php
 require_once 'init.php';
 require_once 'Objects.php';
-//    TODO: uncomment code when page is done
 $user = new User();
-if (!$user->isLoggedIn()) {
+if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirect to error page
   Redirect::page('404.php');
 }
 ?>
@@ -36,7 +35,7 @@ if (!$user->isLoggedIn()) {
 
         var o = document.getElementById('date-time');
         var childList = o.childNodes;
-        o.insertBefore(makeDate(numberOfDays++), childList[childList.length - 2]);
+        o.insertBefore(makeDate(numberOfDays++), childList[childList.length - 1]);
       }
 
       /**
@@ -50,32 +49,48 @@ if (!$user->isLoggedIn()) {
         var child1 = document.createElement('div');
         var child2 = document.createElement('div');
         var child3 = document.createElement('div');
+        var child4 = document.createElement('div');
         var input1 = document.createElement('input');
         var input2 = document.createElement('input');
         var input3 = document.createElement('input');
+        var input4 = document.createElement('button');
         row.className = 'row';
-        child1.className = 'col-xs-12 col-sm-6';
-        child2.className = 'col-xs-12 col-sm-3';
-        child3.className = 'col-xs-12 col-sm-3';
+        child1.className = 'col-xs-12 col-sm-4 form-group';
+        child2.className = 'col-xs-12 col-sm-3 form-group';
+        child3.className = 'col-xs-12 col-sm-3 form-group';
+        child4.className = 'col-xs-12 col-sm-2 form-group';
         input1.className = 'form-control';
         input2.className = 'form-control';
         input3.className = 'form-control';
+        input4.className = 'btn btn-danger form-control';
         input1.type = 'date';
         input2.type = 'time';
         input3.type = 'time';
+        input4.type = 'button';
         input1.name = 'date[]';
         input2.name = 'startTime[]';
         input3.name = 'endTime[]';
+        input4.name = 'button[]';
+        row.id = 'row' + number;
         input1.id = 'date' + number;
         input2.id = 'startTime' + number;
         input3.id = 'endTime' + number;
+        input4.id = 'button' + number;
+        input4.innerHTML = 'Delete <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>';
+        input4.onclick = row.style = 'hidden';
         row.appendChild(child1);
         row.appendChild(child2);
         row.appendChild(child3);
+        row.appendChild(child4);
         child1.appendChild(input1);
         child2.appendChild(input2);
         child3.appendChild(input3);
+        child4.appendChild(input4);
         return row;
+      }
+
+      function removeDate() {
+        var o = document.getElementById('date-time');
       }
 
       //-----------------------------------Google maps autocomplete---------------------//
@@ -129,7 +144,7 @@ if (!$user->isLoggedIn()) {
 
     </script>
     <header>
-    <?php
+      <?php
       $pageBuilder = new CreateSalesPage();
       $pageBuilder->getHeader();
     ?>
@@ -147,7 +162,7 @@ if (!$user->isLoggedIn()) {
               'max' => 22
             ),
             'description' => array(
-              'max' => 10000, // FIXME: what is description max size?
+              'max' => 1500,
               'required' => true
             ),
             'location' => array(
@@ -161,41 +176,30 @@ if (!$user->isLoggedIn()) {
             'date' => array(
               'required' => true,
               'date' => true
+              // TODO: chage date rules after today
             ),
             'startTime' => array(
               'required' => true,
+              'time' => true,
               'startTime' => true
+              // TODO: create rule for before endTime
+              // TODO: create rule > current time of current day
             ),
             'endTime' => array(
               'required' => true,
+              'time' => true,
               'endTime' => true
               //'after' => 'startTime'
+              // TODO: create rule for time
+              // TODO: create rule for after startTime
+              // TODO: create test for img
             ));
           $validation = $validator->check($_POST, $rules);
-          $image_url = "not_implented.png"; // TODO: need to upload image to downloads folder and create new url and save here
-          $formattedDates = formatDates();
-          if ($validation->passed()) {
-            $user = new User();
-            $gsale = new GarageSale();
-            $place = new Place();
+          $formattedDates = formatDates();  // FIXME: create date object to format dates to put in gsales table
+          if ($validation->passed()) {      // input passed all validaiton
             try {
-              $address = $_POST['location'];
-              $address = sanitizeInput($_POST['location']);
-              $place->getPlaceJSON("?address=" . $address);
-              $address = sanitizeInput($address);
-              $place->create();
-              if ($place->exists()) {
-                var_dump($place);
-                // create garageSale()
-                $gsale->create(array(
-                  sanitizeInput($_POST['sale_name']),
-                  $image_url,
-                  sanitizeInput($_POST['description']),
-                  $formattedDates,
-                  $place->getData()->place_id,
-                  $user->data()->user_id
-                ));
-              }
+              // TODO: create Place, GarageSale, Phone
+              // TODO: Link place and gsale, phone and gsale, user and gsale
             } catch (Exception $e) {
               die ($e->getMessage());
             }
@@ -205,6 +209,7 @@ if (!$user->isLoggedIn()) {
             }
           }
           //Redirect::page("yourSales.php");
+          // TODO: redirect to yourSales on create gslae success
         }
       }
       ?>
@@ -222,7 +227,7 @@ if (!$user->isLoggedIn()) {
           </div>
           <div id="date-time" class="form-group">
             <div class="row">
-              <div class="col-sm-6">
+              <div class="col-sm-4">
                 <label for="location1">Date:</label>
               </div>
               <div class="col-sm-3">
@@ -233,20 +238,18 @@ if (!$user->isLoggedIn()) {
               </div>
             </div>
             <div class="row">
-              <div class="col-xs-12 col-sm-6">
+              <div class="col-xs-12 col-sm-4 form-group">
                 <input type="date" class="form-control" id="date1" name="date[]" value="">
               </div>
-              <div class="col-xs-12 col-sm-3">
-                <input type="time" class="form-control" id="startTime1" name="startTime[]" value="">
+              <div class="col-xs-12 col-sm-3 form-group">
+                <input type="time" class="form-control " id="startTime1" name="startTime[]" value="">
               </div>
-              <div class="col-xs-12 col-sm-3">
+              <div class="col-xs-12 col-sm-3 form-group">
                 <input type="time" class="form-control" id="endTime1" name="endTime[]" value="">
               </div>
-            </div>
-            <div class="row">
-              <br>
-              <div class="col-xs-2 pull-right">
-                <button type="button" class="btn btn-default btn-green pull-right" id="add_date" onclick="addDate()">Add Day</button>
+              <div class="col-xs-12 col-sm-2 form-group">
+                <button type="button" class="btn btn-green-no-padding form-control" id="add_date" onclick="addDate()">Add Day <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </button>
               </div>
             </div>
           </div>
@@ -256,12 +259,18 @@ if (!$user->isLoggedIn()) {
           </div>
           <div class="form-group">
             <label for="phone">Phone:</label>
-            <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>">
+            <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>" maxlength="16">
           </div>
           <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-          <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
+          <div class="row">
+            <div class="col-xs-12 col-sm-2 pull-right">
+              <button type="submit" class="btn btn-green-no-padding form-control pull-right" name="submit">Submit</button>
+            </div>
+          </div>
         </form>
     </div>
+    <br>
+    <br>
     <footer>
       <?php
       PageBuilder::getFooter();
