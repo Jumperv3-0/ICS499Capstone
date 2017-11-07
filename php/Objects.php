@@ -416,7 +416,7 @@ CONTENT;
 										<span class="icon-bar"></span>
 										<span class="icon-bar"></span>
 									</button>
-								<a class="navbar-brand" href="index.php"><img src="../img/garage_logo_final.png" /></a>
+								<a class="navbar-brand" href="index.php"><img src="../img/garage_logo_final2.jpg"/></a>
 								</div>
 								<div class="collapse navbar-collapse" id="MyNavbar">
 									<ul class="nav navbar-nav navbar float-left">
@@ -450,7 +450,7 @@ CONTENT;
 										<span class="icon-bar"></span>
 										<span class="icon-bar"></span>
 									</button>
-								<a class="navbar-brand" href="#"><img src="../img/garage_logo_final.png" /></a>
+								<a class="navbar-brand" href="#"><img src="../img/garage_logo_final2.jpg"/></a>
 								</div>
 								<div class="collapse navbar-collapse" id="MyNavbar">
 									<ul class="nav navbar-nav navbar float-left">
@@ -472,11 +472,9 @@ CONTENT;
 										<ul class="dropdown-menu">
 											<li><a href="yourSales.php">My Sales</a></li>
 											<li role="separator" class="divider"></li>
-											<li><a href="#">My Items</a></li>
+											<li><a href="editAccount.php">Edit Account</a></li>
 											<li role="separator" class="divider"></li>
-											<li><a href="#">Prefered Items</a></li>
-											<li role="separator" class="divider"></li>
-											<li><a href="#">One more separated link</a></li>
+											<li><a href="stats.php">Statics</a></li>
 										</ul>
 									</li>
 									<li><a href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
@@ -1094,8 +1092,6 @@ abstract class DB_Object {
 
 
 class Phone extends DB_Object{
-  private $gsale_id;
-
   /**
    * Constructor that initiazes class variables
    * @author Gary
@@ -1111,7 +1107,7 @@ class Phone extends DB_Object{
   public function create($params = array()) {
     $sql = "INSERT INTO phones (phone_id, phone_number) VALUES (NULL, ?);";
     $result = $this->db_conn->query($sql, $params);
-    if (!$result->getError()) {
+    if ($result->getError()) {
       throw new Exception("Error creating phone number!");
     }
   }
@@ -1176,11 +1172,10 @@ class Phone extends DB_Object{
    * @return string formatted number
    */
   public static function formatNumber($phone_number) {
-    $pattern = '/\D+\s+/';
-    $replace = "";
+    $pattern = '/\D/';
+    $replace = '';
     $phone_number = preg_replace($pattern, $replace, $phone_number);
     $number_length = strlen($phone_number);
-    echo($number_length);
     if($number_length < 10) {
       return null;
     } else if ($number_length === 10) {   // format (xxx)-xxx-xxxx
