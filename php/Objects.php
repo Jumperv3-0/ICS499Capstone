@@ -213,11 +213,11 @@ class GarageSale
     if (!$sale) {
       // TODO: to be implemented?
     } else {
-      $this->findSale($sale);
+      $this->find($sale);
     }
   }
 
-  public function findSale($gsale = null)
+  public function find($gsale = null)
   {
     if ($gsale != null) {
       $sql = "SELECT * FROM garage_sales WHERE gsale_id = ?";
@@ -346,11 +346,16 @@ abstract class PageBuilder
         echo $this->header;
         break;
       case "createSale2.php":
-        $this->active = 'createSale';
+        $this->active = 'createSale'; // TODO: change active
         $this->header = $this->makeHeader($this->active, $this->logged_in);
         echo $this->header;
         break;
       case "createItem.php":
+        $this->active = 'createItem';
+        $this->header = $this->makeHeader($this->active, $this->logged_in);
+        echo $this->header;
+        break;
+      case "editAccount.php":
         $this->active = 'createItem';
         $this->header = $this->makeHeader($this->active, $this->logged_in);
         echo $this->header;
@@ -1330,10 +1335,19 @@ class Place extends DB_Object {
   }
 }
 
-class TimeFormater {
+class DateTimeFormater {
 
-  public static function formatTime($time) {
+  public static function formatDateTime($time1, $time2, $date) {
     // TODO: need to implment
+  }
+
+  public static function getDateTime($date_time) {
+    $return_array = array();
+    $date_time = explode(',',$date_time);
+    foreach ($date_time as $param) {
+      $return_array[] = explode('-', $param);
+    }
+    return $return_array;
   }
 }
 
