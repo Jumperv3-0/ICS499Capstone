@@ -64,7 +64,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         input2.className = 'form-control';
         input3.className = 'form-control';
         input4.className = 'btn btn-danger form-control';
-        input1.type = 'date';
+        input1.type = 'text';
         input2.type = 'time';
         input3.type = 'time';
         input4.type = 'button';
@@ -73,6 +73,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         input3.name = 'endTime[]';
         input4.name = 'button[]';
         row.id = 'row' + number;
+        input1.placeholder = "mm/dd/yyyy";
         input1.id = 'date' + number;
         input2.id = 'startTime' + number;
         input3.id = 'endTime' + number;
@@ -117,20 +118,44 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           });
       }
 
+      function formatPhone() {
+        var el = document.getElementById('phone');
+        var phoneNumber = el.value;
+        phoneNumber = phoneNumber.replace(/\D+/, '');
+        if (phoneNumber.length > 0) {
+          phoneNumber = '(' + phoneNumber;
+        }
+        if (phoneNumber.length === 4) {
+          phoneNumber = phoneNumber + ')-';
+        }
+        if (phoneNumber.length === 9) {
+          phoneNumber = phoneNumber + '-';
+        }
+        if (phoneNumber.length == 14) {
+          phoneNumber = phoneNumber.replace(/\D+/g, '');
+          phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
+        }
+        if (phoneNumber.length >= 15) {
+          phoneNumber = phoneNumber.replace(/\D+/g, '');
+          phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
+        }
+        el.value = phoneNumber;
+      }
+
       function phoneFormat() { // FUTURE: make phone format work with deleteing numbers
         var el = document.getElementById('phone');
         var phoneNumber = el.value;
-        phoneNumber = phoneNumber.replace(/[^0-9|\(\)\-]/g, '');
-        if (phoneNumber.length >= 1 && (phoneNumber.charAt(0) != '(' && phoneNumber.charAt(1) != '(' && phoneNumber.charAt(2) != '(')) {
+        phoneNumber = phoneNumber.replace(/\D/g, '');
+        if (phoneNumber.length > 0) {
           phoneNumber = '(' + phoneNumber;
         }
-        if (phoneNumber.length >= 4 && (phoneNumber.charAt(4) != ')' && phoneNumber.charAt(4) != ')' && phoneNumber.charAt(5) != ')')) {
-          phoneNumber = phoneNumber + ')';
+        if (phoneNumber.length >= 4) {
+          phoneNumber = phoneNumber.substring() + ')';
         }
-        if (phoneNumber.length >= 5 && phoneNumber.charAt(5) != '-' && phoneNumber.charAt(6) != '-') {
+        if (phoneNumber.length >= 5) {
           phoneNumber = phoneNumber + "-";
         }
-        if (phoneNumber.length >= 9 && phoneNumber.charAt(9) != '-' && phoneNumber.charAt(10) != '-') {
+        if (phoneNumber.length >= 9) {
           phoneNumber = phoneNumber + "-";
         }
         if (phoneNumber.length == 14) {
@@ -149,8 +174,9 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
     </script>
     <header>
       <?php
-  $pageBuilder = new CreateSalesPage();
-      $pageBuilder->getHeader();
+
+        $pageBuilder = new CreateSalesPage();
+        $pageBuilder->getHeader();
       ?>
     </header>
     <div class="container">
@@ -271,7 +297,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           </div>
           <div class="row">
             <div class="col-xs-12 col-sm-4 form-group">
-              <input type="date" class="form-control" id="date1" name="date[]" value="">
+              <input type="text" class="form-control" id="datepicker" name="date[]" value="" placeholder="mm/dd/yyyy">
             </div>
             <div class="col-xs-12 col-sm-3 form-group">
               <input type="time" class="form-control " id="startTime1" name="startTime[]" value="">
@@ -291,7 +317,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         </div>
         <div class="form-group">
           <label for="phone">Phone:</label>
-          <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>" maxlength="16">
+          <input type="phone" class="form-control" id="phone" name="phone" placeholder="(xxx)-xxx-xxxx" onkeypress="formatPhone()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>" maxlength="16">
         </div>
         <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
         <div class="row">

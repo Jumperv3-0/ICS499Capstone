@@ -425,7 +425,12 @@ CONTENT;
 								</div>
 								<div class="collapse navbar-collapse" id="MyNavbar">
 									<ul class="nav navbar-nav navbar float-left">
-									' . $this->getActive($active) . '
+           <li class="'. ((strcmp($this->getCurrentPage(), "index.php") == 0)?  'active' : '') . '"><a href="index.php">Home</a></li>
+           <li role="separator" class="divider"></li>
+            <li class="'. ((strcmp($this->getCurrentPage(), "otherSales.php") == 0)?  'active' :  '') . '"><a href="otherSales.php">Sales</a></li>
+           <li role="separator" class="divider"></li>
+            <li class="'. ((strcmp($this->getCurrentPage(), "items.php") == 0)? 'active' : '') . '"><a href="items.php">Items</a></li>
+           <li role="separator" class="divider"></li>
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
 										<li>
@@ -438,8 +443,8 @@ CONTENT;
 												</div>
 											</form>
 										</li>
-										<li><a href="createAccount.php">Create Account</a></li>
-										<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+										<li class="' . ((strcmp($this->getCurrentPage(), "createAccount.php") == 0) ? "active" : 'null') . '"><a href="createAccount.php">Create Account</a></li>
+										<li><a class="'. ((strcmp($this->getCurrentPage(), "login.php") == 0)? "active" : '') . '" href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 									</ul>
 								</div>
 							</div>
@@ -459,7 +464,12 @@ CONTENT;
 								</div>
 								<div class="collapse navbar-collapse" id="MyNavbar">
 									<ul class="nav navbar-nav navbar float-left">
-									' . $this->getActive($active) . '
+									<li class="'. ((strcmp($this->getCurrentPage(), "index.php") == 0)? 'active' : '') . '"><a href="index.php">Home</a></li>
+           <li role="separator" class="divider"></li>
+            <li class="'. ((strcmp($this->getCurrentPage(), "otherSales.php") == 0) ? 'active' : '') . '"><a href="otherSales.php">Sales</a></li>
+           <li role="separator" class="divider"></li>
+            <li class="'. ((strcmp($this->getCurrentPage(), "items.php") == 0) ? 'active' : '') . '"><a href="items.php">Items</a></li>
+           <li role="separator" class="divider"></li>
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
 										<li>
@@ -472,14 +482,14 @@ CONTENT;
                         </div>
                       </form>
 										</li>
-										<li class="dropdown">
-<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
+										<li class="dropdown '. ((strcmp($this->getCurrentPage(), "yourSales.php") == 0) ? 'active' : '') . '">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
 										<ul class="dropdown-menu">
-											<li><a href="yourSales.php">My Sales</a></li>
+											<li><a class="drop-link" href="yourSales.php">My Sales</a></li>
 											<li role="separator" class="divider"></li>
-											<li><a href="editAccount.php">Edit Account</a></li>
+											<li><a class="drop-link" href="editAccount.php">Edit Account</a></li>
 											<li role="separator" class="divider"></li>
-											<li><a href="stats.php">Statics</a></li>
+											<li><a class="drop-link" href="stats.php">Statics</a></li>
 										</ul>
 									</li>
 									<li><a href="logout.php"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
@@ -534,6 +544,48 @@ CONTENT;
     }
     return $html;
   }
+
+  protected function getCurrentPage() {
+    $array = explode('/', sanitizeInput($_SERVER['PHP_SELF']));
+    $page_name = array_pop($array);
+    return $page_name;
+  }
+
+  protected function getActivePage() {
+    $active = array(false, false, false, false);
+    switch ($this->getCurrentPage()) {
+      case "index":
+        $active[0] = true;
+        break;
+      case "otherSales":
+        $active[0] = true;
+        break;
+      case "items":
+        $active[0] = true;
+        break;
+      case "createAccount":
+        $active[0] = true;
+        break;
+      case "createItem":
+        $active[0] = true;
+        break;
+      case "yourSales":
+        $active[0] = true;
+        break;
+      case "yourSales":
+        $active[0] = true;
+        break;
+      case "yourSales":
+        $active[0] = true;
+        break;
+      case "yourSales":
+        $active[0] = true;
+        break;
+
+    }
+  }
+
+
 
   /**
      * TODO: To be implemented by subclasses
@@ -680,21 +732,102 @@ class RegisterPage extends PageBuilder
 /**
  * TODO: To be implemented by subclasses
  */
-class SalesPage extends PageBuilder
-{
-  public function getContent()
-  {
+class SalesPage extends PageBuilder {
+  private $user, $db_conn;
+
+  public function __construct() {
+    $this->user = new User();
+    $this->db_conn = SqlManager::getInstance();
+  }
+  public function getContent() {
+    $html = '<div class="container"><ul class="list-group">';
+    $table_data = $this->getTableData();
+    if (count($table_data) > 0 ) {
+      foreach ($table_data as $row) {
+        $html .= '<!-- list-group-of-sales -->
+                <li class="list-group-item">
+                  <div class="row">
+                    <div class="col-sm-5">
+                      <div class="col-sm-6">
+                        <div class="collapse-header">Name:</div>
+                        <div>' . $row[0]->sale_name . '</div>
+                      </div>
+                      <div class="col-sm-6">
+                        <div class="collapse-header">Date:</div>
+                        <div>' . DateTimeFormater::getDays($row[0]->dates) . '</div>
+                      </div>
+                    </div>
+                    <div class="col-sm-7 text-right">
+                      <div class="col-sm-3">
+                        <a class="btn btn-primary form-control" href="otherSales.php?gsale_id=' . $row[0]->gsale_id . '">View&nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+                      </div>
+                      <div class="col-sm-3">
+                        <a class="btn btn-green-no-padding form-control" href="runSale.php?gsale_id=' . $row[0]->gsale_id . '">Run&nbsp;<span class="glyphicon glyphicon-play" aria-hidden="true"></span></a>
+                      </div>
+                      <div class="col-sm-3">
+                        <a class="btn btn-warning form-control" href="?action=edit&amp;gsale_id=' . $row[0]->gsale_id . '">Edit&nbsp;<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
+                      </div>
+                      <div class="col-sm-3">
+                        <a class="btn btn-danger form-control" href="" data-toggle="modal" data-target="#deleteModal' . $row[0]->gsale_id . '">Delete&nbsp;<span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Modal -->
+                <div class="modal fade" id="deleteModal' . $row[0]->gsale_id . '" role="dialog">
+                  <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title"><span class="glyphicon glyphicon-alert" aria-hidden="true"></span>&nbsp;Warning</h4>
+                      </div>
+                      <div class="modal-body">
+                        <p>You are about to delete a sale are you sure you want to do that?</p>
+                      </div>
+                      <div class="modal-footer">
+                        <a type="button" class="btn btn-danger pull-left" href="?action=delete&amp;gsale_id=' . $row[0]->gsale_id . '">Delete Sale</a>
+                        <a type="button" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </li>
+                ';
+      }
+    } else {
+      $html .= '<!-- list-group-of-sales -->
+                <li class="list-group-item">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div>No sales have been created</div>
+                    </div>
+                  </div>
+                </li>';
+    }
+
+    $html .= "</div></ul>";
+    return $html;
+  }
+
+  protected function getTable() {
 
   }
 
-  protected function getTable()
-  {
-
-  }
-
-  protected function getTableData()
-  {
-
+  protected function getTableData() {
+    $user_id = $this->user->data()->user_id;
+    $sql = "SELECT garage_sales_fk_id FROM garage_sales_users WHERE user_fk_id = ?";
+    $result = $this->db_conn->query($sql, array($user_id));
+    $sql = "SELECT * FROM garage_sales WHERE gsale_id = ?";
+    $results = $result->getResult();
+    $count = count($result);
+    $gsales = array();
+    foreach ($results as $result) {
+      $result = $this->db_conn->query($sql, array($result->garage_sales_fk_id));
+      if (!$result->getError()) {
+        $gsales[] = $result->getResult();
+      }
+    }
+    return $gsales;
   }
 }
 
@@ -1110,6 +1243,7 @@ class Phone extends DB_Object{
   }
 
   public function create($params = array()) {
+    // TODO: change phone number to auto inc
     $sql = "INSERT INTO phones (phone_id, phone_number) VALUES (NULL, ?);";
     $result = $this->db_conn->query($sql, $params);
     if ($result->getError()) {
@@ -1341,6 +1475,8 @@ class DateTimeFormater {
     // TODO: need to implment
   }
 
+
+
   public static function getDateTime($date_time) {
     $return_array = array();
     $date_time = explode(',',$date_time);
@@ -1349,12 +1485,136 @@ class DateTimeFormater {
     }
     return $return_array;
   }
+
+  public static function getDays($date_time) {
+    $date_time = DateTimeFormater::getDateTime($date_time);
+    $times = array();
+    $count = count($date_time);
+    if ($count == 1) {
+      $times[] = DateTimeFormater::parseDay($date_time[0][2]);
+    } else {
+      for ($i = 0; $i < $count; $i++) {
+        $times[] = DateTimeFormater::parseDay($date_time[$i][2]);
+      }
+    }
+    return $times;
+  }
+
+  public static function getTimes($date_time) {
+    $date_time = DateTimeFormater::getDateTime($date_time);
+    $times = array();
+    $count = count($date_time);
+    if ($count == 1) {
+      $times[] = DateTimeFormater::parseTime($date_time[0][0]) . " - " . DateTimeFormater::parseTime($date_time[0][1]);
+    } else {
+      for ($i = 0; $i < $count; $i++) {
+        $times[] = DateTimeFormater::parseTime($date_time[$i][0]) . " - " . DateTimeFormater::parseTime($date_time[$i][1]);
+      }
+    }
+    return $times;
+  }
+
+  private static function parseTime($time) {
+    $standard_time = "";
+    //$time = explode(':',$time);
+    switch ($time) {
+      case $time < 12:
+        $standard_time = $time . "am";
+        break;
+      case "12:00":
+        $standard_time = $time . "pm";
+        break;
+      case $time > 12:
+        $standard_time = (explode(":",$time)[0] % 12) . ":" . explode(":",$time)[1] . "pm";
+        break;
+      default:
+         $standard_time = "error";
+    }
+    return $standard_time;
+  }
+
+  private static function parseDay($day) {
+    $standard_day = "";
+    $mmddyyyy = explode('/', $day);
+    $month = "";
+    $day_of_week = DateTimeFormater::parseDayOfWeek($day);
+    switch ($mmddyyyy) {
+      case $mmddyyyy[0] == '1':
+        $month = "Jan";
+        break;
+      case $mmddyyyy[0] == '2':
+        $month = "Feb";
+        break;
+      case $mmddyyyy[0] == '3':
+        $month = "Mar";
+        break;
+      case $mmddyyyy[0] == '4':
+        $month = "Apr";
+        break;
+      case $mmddyyyy[0] == '5':
+        $month = "May";
+        break;
+      case $mmddyyyy[0] == '6':
+        $month = "Jun";
+        break;
+      case $mmddyyyy[0] == '7':
+        $month = "Jul";
+        break;
+      case $mmddyyyy[0] == '8':
+        $month = "Aug";
+        break;
+      case $mmddyyyy[0] == '9':
+        $month = "Sept";
+        break;
+      case $mmddyyyy[0] == '10':
+        $month = "Oct";
+        break;
+      case $mmddyyyy[0] == '11':
+        $month = "Nov";
+        break;
+      case $mmddyyyy[0] == '12':
+        $month = "Dec";
+        break;
+    }
+    return $day_of_week . ", " . $month . " " . $mmddyyyy[1];
+  }
+
+  private static function parseDayOfWeek($date) {
+    $date = (9 + floor((2.6*9) - .2) -(2*20) + 17 + floor(17/4) + floor(20/4))%7;
+    $day = "";
+    switch($date) {
+      case 0:
+        $day = "Sun";
+        break;
+      case 1:
+        $day = "Mon";
+        break;
+      case 2:
+        $day = "Tue";
+        break;
+      case 3:
+        $day = "Wed";
+        break;
+      case 4:
+        $day = "Thur";
+        break;
+      case 5:
+        $day = "Fri";
+        break;
+      case 6:
+        $day = "Sat";
+        break;
+      default:
+        $day = "error";
+    }
+    return $day;
+  }
 }
 
 class ImageProcesser {
   private $max_size, $errors, $new_location;
 
-  public function __construct($imageName, $location = "../uploads/") {
+  public function __construct($imageName, $location = "../uploads/sales/") {
     $this->max_size = 500000;
     $this->errors = array();
     //var_dump($_FILES);

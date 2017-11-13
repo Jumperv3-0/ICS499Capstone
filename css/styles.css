@@ -131,3 +131,13 @@ ul.nav.navbar-nav.navbar-right {
 .container-table {
   background-color: #e3e3e3;
 }
+
+.drop-link {
+  background-color: white !important;
+  color: black !important;
+}
+
+li .drop-link:hover {
+  background-color: #e3e3e3!important;
+  color: black !important;
+}

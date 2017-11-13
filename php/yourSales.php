@@ -20,12 +20,6 @@ if (!$user->isLoggedIn()) {
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../css/styles.css">
-    <style>
-      #well-title {
-        margin: 0;
-      }
-
-    </style>
   </head>
 
   <body>
@@ -39,122 +33,43 @@ if (!$user->isLoggedIn()) {
     if (Session::exists('createSale')) {
       echo '<div class="container">' . Session::flash('createSale') . '</div>';
     }
+    ?>
+
+
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <h1>Your Sales</h1>
+        </div>
+      </div>
+    </div>
+    <?php
     $gsale = new GarageSale();
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && isset($_GET['gsale_id'])) {
       $found = $gsale->find(sanitizeInput($_GET['gsale_id']));
       if ($found && strcmp(sanitizeInput($_GET['action']), "edit") == 0) {
         var_dump($gsale->getData());
-        echo "in edit";
+        include 'editSale.php';
       } else if ($found && strcmp(sanitizeInput($_GET['action']), "delete") == 0) {
         var_dump($gsale->getData());
-        echo "in edit";
+        echo "in delete";
       } else {
         echo "cound not find sale";
       }
     } else {
-      echo "default page";
+      echo '<div class="container">
+              <div class="row">
+                <div class="col-sm-6"><h3>Hello: ' . ucfirst($user->Data()->fname) . '</h3>
+              </div>
+              <div class="col-sm-6">
+                <a id="createSale" class="btn btn-green pull-right" href="createSale2.php" style="margin-top:18px;">Create Sale  <span class="glyphicon glyphicon-plus-sign"></span></a>
+              </div>
+            </div>
+          </div>
+          <br>';
+      echo $page->getContent();
     }
     ?>
-
-
-    <div class="container top-container">
-      <div class="row">
-        <div class="col-sm-12">
-          <h1 id="well-title">Your Sales</h1>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-sm-6">
-          <?php
-          $user = new User();
-          if ($user->isLoggedIn()) {
-            echo "<h3>Hello: " . ucfirst($user->Data()->fname) . "</h3>";
-          }
-          ?>
-        </div>
-        <div class="col-sm-6">
-          <a id="createSale" class="btn btn-green pull-right" href="createSale2.php">Create Sale  <span class="glyphicon glyphicon-plus-sign"></span></a>
-        </div>
-      </div>
-    </div>
-    <br>
-    <div class="container">
-      <ul class="list-group">
-        <li class="list-group-item"><div class="row">
-          <div class="col-sm-5">
-            <div class="col-sm-6">
-              <div class="collapse-header">Name: </div>
-              <div>Bob's Bouncy Bargains</div>
-            </div>
-            <div class="col-sm-6">
-              <div class="collapse-header">Date: </div>
-              <div>Mon, Oct 16 - Sun, Oct 19</div>
-            </div>
-          </div>
-          <div class="sale-buttons col-sm-7 text-right">
-            <div class="col-sm-3">
-              <a class="btn btn-primary form-control" href="otherSales.php?gsale_id=1">View&nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-green-no-padding form-control" href="runSale.php?gsale_id=1">Run&nbsp;<span class="glyphicon glyphicon-play" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-warning form-control" href="?action=edit&gsale_id=1">Edit&nbsp;<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-danger form-control" href="" data-toggle="modal" data-target="#deleteModal">Delete&nbsp;<span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>
-            </div>
-          </div>
-          </div></li>
-        <li class="list-group-item"><div class="row">
-          <div class="col-sm-5">
-            <div class="col-sm-6">
-              <div class="collapse-header">Name: </div>
-              <div>Bob's Bouncy Bargains</div>
-            </div>
-            <div class="col-sm-6">
-              <div class="collapse-header">Date: </div>
-              <div>Mon, Oct 16 - Sun, Oct 19</div>
-            </div>
-          </div>
-          <div class="sale-buttons col-sm-7 text-right">
-            <div class="col-sm-3">
-              <a class="btn btn-primary form-control" href="otherSales.php?gsale_id=1">View&nbsp;<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-green-no-padding form-control" href="runSale.php?gsale_id=1">Run&nbsp;<span class="glyphicon glyphicon-play" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-warning form-control" href="?action=edit&gsale_id=1">Edit&nbsp;<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-            </div>
-            <div class="col-sm-3">
-              <a class="btn btn-danger form-control" href="" data-toggle="modal" data-target="#deleteModal">Delete&nbsp;<span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>
-            </div>
-          </div>
-          </div>
-        </li>
-      </ul>
-      <!-- Modal -->
-      <div class="modal fade" id="deleteModal" role="dialog">
-        <div class="modal-dialog">
-          <!-- Modal content-->
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-              <h4 class="modal-title"><span class="glyphicon glyphicon-alert" aria-hidden="true"></span>&nbsp;Warning</h4>
-            </div>
-            <div class="modal-body">
-              <p>You are about to delete a sale are you sure you want to do that?</p>
-            </div>
-            <div class="modal-footer">
-              <a type="button" class="btn btn-danger pull-left" href="?action=delete&gsale_id=1">Delete Sale</a>
-              <a type="button" class="btn btn-default" data-dismiss="modal">Cancel</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
     <footer>
       <?php
       PageBuilder::getFooter();
