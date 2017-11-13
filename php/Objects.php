@@ -744,17 +744,25 @@ class SalesPage extends PageBuilder {
     $table_data = $this->getTableData();
     if (count($table_data) > 0 ) {
       foreach ($table_data as $row) {
+        $dates = DateTimeFormater::getDays($row[0]->dates);
+        $dates_max = count($dates);
         $html .= '<!-- list-group-of-sales -->
                 <li class="list-group-item">
                   <div class="row">
                     <div class="col-sm-5">
-                      <div class="col-sm-6">
+                      <div class="col-sm-4">
                         <div class="collapse-header">Name:</div>
                         <div>' . $row[0]->sale_name . '</div>
                       </div>
-                      <div class="col-sm-6">
-                        <div class="collapse-header">Date:</div>
-                        <div>' . DateTimeFormater::getDays($row[0]->dates) . '</div>
+                      <div class="col-sm-8">
+                        <div class="col-sm-6" style="padding-right:0;">
+                          <div class="collapse-header">Sart Date:</div><div>' . $dates[0] . '
+                          </div>
+                        </div>
+                        <div class="col-sm-6" style="padding-right:0;">
+                        <div class="collapse-header">End Date:</div>
+                        <div>' . $dates[$dates_max-1]  . '</div>
+                        </div>
                       </div>
                     </div>
                     <div class="col-sm-7 text-right">
@@ -1506,10 +1514,12 @@ class DateTimeFormater {
     $count = count($date_time);
     if ($count == 1) {
       $times[] = DateTimeFormater::parseTime($date_time[0][0]) . " - " . DateTimeFormater::parseTime($date_time[0][1]);
-    } else {
+    } else if($count > 1) {
       for ($i = 0; $i < $count; $i++) {
         $times[] = DateTimeFormater::parseTime($date_time[$i][0]) . " - " . DateTimeFormater::parseTime($date_time[$i][1]);
       }
+    } else {
+      // no times
     }
     return $times;
   }
@@ -1580,7 +1590,12 @@ class DateTimeFormater {
   }
 
   private static function parseDayOfWeek($date) {
-    $date = (9 + floor((2.6*9) - .2) -(2*20) + 17 + floor(17/4) + floor(20/4))%7;
+    $dates = explode('/', $date);
+    $month = ($dates[0] + 10) % 12;
+    $date = $dates[1];
+    $year = (int)substr($dates[2], 2);
+    $year2 = (int)substr($dates[2], 0, 2);
+    $date = ($date + floor((2.6*$month) - .2) -(2*20) + $year + floor($year/4) + floor($year2/4))%7;
     $day = "";
     switch($date) {
       case 0:
