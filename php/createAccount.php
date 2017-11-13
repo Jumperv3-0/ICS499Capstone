@@ -54,13 +54,13 @@ require_once 'functions.php';
                 'matches' => 'password' // password_again must match password
               ),
               'fname' => array(
-		'fname' => "First Name",
+		'name' => "First Name",
                 'required' => true,
                 'min' => 2,
                 'max' => 30
               ),
               'lname' => array(
-		'fname' => "Last Name",
+		'name' => "Last Name",
                 'required' => true,
                 'min' => 2,
                 'max' => 30
