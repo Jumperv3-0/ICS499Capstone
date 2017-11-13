@@ -48,6 +48,7 @@ if (!$user->isLoggedIn()) {
 					$validator = new validation();
 					$rules = array(
 						'item_name' => array(
+							'name' => "Item Name",
 							'required' => true,
 							'min' => 3,
 							'max' => 22
@@ -103,6 +104,7 @@ if (!$user->isLoggedIn()) {
 						<input type="text" class="form-control" id="item_name" name="item_name" value="<?php echo(isset($_POST['item_name']) ? sanitizeInput($_POST['item_name']) : ''); ?>" placeholder="Enter name of item">
 					</div>
 					<div class="form-group">
+						<label for="image">Image of Item (Optional):</label>
 						<input type="file" id="image" name="image">
 					</div>
 					<div class="form-group">
