@@ -277,6 +277,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           <input type="text" class="form-control" id="sale_name" name="sale_name" value="<?php echo(isset($_POST['sale_name']) ? sanitizeInput($_POST['sale_name']) : ''); ?>" placeholder="Enter name of sale">
         </div>
         <div class="form-group">
+	  <label for="image">Picture of Sale (Optional):</label>
           <input type="file" id="image" name="image">
         </div>
         <div class="form-group">
