@@ -3,8 +3,8 @@ require_once 'init.php';
 require_once 'Objects.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
   <head>
     <title>
@@ -91,11 +91,11 @@ require_once 'Objects.php';
     }
     ?>
 
-    <footer>
-      <?php
+      <footer>
+        <?php
       PageBuilder::getFooter();
       ?>
-    </footer>
+      </footer>
   </body>
 
-</html>
+  </html>

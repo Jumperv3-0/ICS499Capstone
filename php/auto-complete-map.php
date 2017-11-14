@@ -20,7 +20,7 @@
   /**
    * Creates the google map on the page
    * @author Gary
-   */
+   *
   function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: {
@@ -83,7 +83,7 @@
    * Puts the location under the map on the page
    * @author Gary
    * @param {object} place that you are currently at
-   */
+   *
   function setInfoContent(place) {
     infowindowContent = document.getElementById('infowindow-content');
     var address = '';
@@ -103,7 +103,7 @@
    * Gets the current location that the user is at if location serverices available
    * @author Gary
    * @param {function} callback function to get the data back asynconously
-   */
+   *
   function getCurrentLocation(callback) {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -123,8 +123,72 @@
 
   function handleLocationError(browserHasGeolocation) {
     browserHasGeolocation ? window.alert('Error: Please enable location to see sales near you') : window.alert('Error: Your browser doesn\'t support geolocation.');
+  }*/
+
+  function initMap() {
+    var options = {
+      center: {
+        lat: 42.3601,
+        lng: -71.0589
+      },
+      zoom: 8
+    };
+    var map_tag = document.getElementById('map');
+    map = new google.maps.Map(map_tag, options);
+
+
+    addMarker({
+      coords: {
+        lat: 42.4668,
+        lng: -70.9495
+      },
+      message: '<h7>first location</h7>',
+      label: 'A'
+    });
+    addMarker({
+      coords: {
+        lat: 42.8584,
+        lng: -70.9300
+      },
+      message: '<h7>second location</h7>',
+      label: 'B'
+    });
+
+    function addMarker(place) {
+      var marker = new google.maps.Marker({
+        position: place.coords,
+        map: map,
+        label: place.label
+        //icon: 'image_url'
+      });
+      if (place.message) {
+        var infoWindow = new google.maps.InfoWindow({
+          content: place.message
+        });
+        marker.addListener('click', function() {
+          infoWindow.open(map, marker);
+        });
+      }
+    }
   }
+  /**
+  function initMap() {
+    var uluru = {
+      lat: -25.363,
+      lng: 131.044
+    };
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 4,
+      center: uluru
+    });
+    var marker = new google.maps.Marker({
+      position: uluru,
+      map: map
+    });
+  }*/
 
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDn4zPdPO8C7P1s-4YoVPG_FuMabLYqVcw&libraries=places&callback=initMap" async defer>
+
+
 </script>

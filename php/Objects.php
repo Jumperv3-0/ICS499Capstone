@@ -755,11 +755,11 @@ class SalesPage extends PageBuilder {
                         <div>' . $row[0]->sale_name . '</div>
                       </div>
                       <div class="col-sm-8">
-                        <div class="col-sm-6" style="padding-right:0;">
+                        <div class="col-sm-6" style="padding-left:0;">
                           <div class="collapse-header">Sart Date:</div><div>' . $dates[0] . '
                           </div>
                         </div>
-                        <div class="col-sm-6" style="padding-right:0;">
+                        <div class="col-sm-6" style="padding-left:0;">
                         <div class="collapse-header">End Date:</div>
                         <div>' . $dates[$dates_max-1]  . '</div>
                         </div>
