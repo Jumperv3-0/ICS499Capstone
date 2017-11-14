@@ -47,17 +47,20 @@ require_once 'functions.php';
                 'max' => 22
               ),
               'password_again' => array(
+		'name' => "Password Again",
                 'required' => true,
                 'min' => 6,
                 'max' => 22,
                 'matches' => 'password' // password_again must match password
               ),
               'fname' => array(
+		'name' => "First Name",
                 'required' => true,
                 'min' => 2,
                 'max' => 30
               ),
               'lname' => array(
+		'name' => "Last Name",
                 'required' => true,
                 'min' => 2,
                 'max' => 30

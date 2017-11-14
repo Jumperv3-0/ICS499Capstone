@@ -187,6 +187,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           $validator = new validation();
           $rules = array(
             'sale_name' => array(
+	      'name' => "Sale Name",
               'required' => true,
               'min' => 4,
               'max' => 22
@@ -201,10 +202,12 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
               // TODO: chage date rules after today
             ),
             'startTime' => array(
+	      'name' => "Start Time",
               'required' => true,
               'startTime' => true
             ),
             'endTime' => array(
+	      'name' => "End Time",
               'required' => true,
               'endTime' => true
             ),
