@@ -861,6 +861,94 @@ class CreateSalesPage extends PageBuilder
 }
 
 
+class SalesListTable {
+  private $db_conn, $places, $gsales;
+  public function __construct() {
+    $this->db_conn = SqlManager::getInstance();
+  }
+
+  public function getTable($lat, $lng, $index, $size = 5) {
+    $this->getTableData($lat, $lng, $index, $size);
+    echo $this->createTable();
+  }
+
+  public function getRandomTable($numberOfSales) {
+
+  }
+
+  private function getTableData($lat, $lng, $index, $size) {
+    $sql = "SELECT *,SQRT(POWER(? - places.lat, 2) + POWER(? - places.lng,2)) AS Distance FROM places WHERE place_id > ? ORDER BY Distance ASC LIMIT " . $size;
+    $params = array($lat, $lng, $index);
+    $result = $this->db_conn->query($sql,$params);
+    if (!$result->getError()) {
+      $this->places = $result->getResult();
+    }
+    $sql = "SELECT gsale_id, sale_name, image_url, description, dates, place_fk_id FROM garage_sales JOIN garage_sales_places ON garage_sales.gsale_id = garage_sales_places.garage_sale_fk_id WHERE place_fk_id = ?";
+    $length = count($this->places);
+    for ($i = 0; $i < $length; $i++) {
+      $params = array($this->places[$i]->place_id);
+      $result = $this->db_conn->query($sql, $params);
+      if (!$result->getError()) {
+        $this->gsales[] = $result->getResult();
+      }
+    }
+  }
+
+  private function createTable() {
+    $table = '<h3>Near By:</h3><div class="panel-group">';
+    $length = count($this->gsales);
+    for ($i = 0; $i < $length; $i++) {
+      $dates = DateTimeFormater::getDays($this->gsales[$i][0]->dates);
+      $table .=
+        "<div class='panel panel-default'>
+          <div class='panel-heading' data-toggle='collapse' data-target='#collapse{$i}' " . ($i === 0 ? "aria-expanded='true'" : "") . ">
+            <h5 class='panel-title collapse-header'>Location:</h5>
+            <p class='collapse-header-text'>{$this->places[$i]->street_number} {$this->places[$i]->route} {$this->places[$i]->locality}, {$this->places[$i]->administrative_area_level_1} {$this->places[$i]->postal_code}</p>
+            <span class='glyphicon glyphicon-chevron-down pull-right' aria-hidden='true'></span>
+          </div>
+          <div id='collapse{$i}' class='panel-collapse collapse " . ($i === 0 ? "in" : "") . "' " . ($i === 0 ? "aria-expanded='true'" : "") . ">
+            <div class='panel-body'>
+              <div class='row text-center'>
+                <h5 class='collapse-header'>{$this->gsales[$i][0]->sale_name}</h5>
+                <p></p>
+              </div>
+              <div class='row'>
+                <div class='col-sm-2'>
+                  <img src='{$this->gsales[$i][0]->image_url}'>
+                </div>
+                <div class='col-sm-4'>
+                  <h5 class='collapse-header'>Date: </h5>
+                  <p>{$dates[0]} - {$dates[count($dates)-1]}</p>
+                </div>
+                <div class='col-sm-5'>
+                  <h5 class='collapse-header'>Description:</h5>
+                  <p>{$this->gsales[$i][0]->description}</p>
+                </div>
+              </div>
+              <div class='row'>
+                <div class='col-xs-12 col-sm-8 pull-right'>
+                  <a class='btn btn-primary form-control' href='otherSales.php?gsale_id={$this->gsales[$i][0]->gsale_id}'>See Details&nbsp;<span class='glyphicon glyphicon-eye-open' aria-hidden='true'></span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>";
+    }
+    $table .= '</div>';
+    return $table;
+
+  }
+
+  public function getGsales() {
+    return $this->gsales;
+  }
+
+  public function getPlaces() {
+    return $this->places;
+  }
+}
+
+
 /**
  * TODO: To be implemented by subclasses
  */
@@ -968,6 +1056,18 @@ class Validation
               var_dump($submit_method[$rule]);
               break;
             case 'price': // TODO: need to implement
+              break;
+            case 'name': // TODO: need to implement
+              break;
+            case 'lat':
+              if (abs(sanitizeInput($submit_method[$rule])) > 90) {
+                $this->addError("Latitude out of bounds");
+              }
+              break;
+            case 'lng':
+              if (abs(sanitizeInput($submit_method[$rule])) > 180) {
+                $this->addError("Longitude out of bounds");
+              }
               break;
             case 'catagory': // TODO: need to implement
               break;
@@ -1538,7 +1638,7 @@ class DateTimeFormater {
         $standard_time = (explode(":",$time)[0] % 12) . ":" . explode(":",$time)[1] . "pm";
         break;
       default:
-         $standard_time = "error";
+        $standard_time = "error";
     }
     return $standard_time;
   }
