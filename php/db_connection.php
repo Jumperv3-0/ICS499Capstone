@@ -48,6 +48,8 @@
           $this->result = $this->query->fetchAll(PDO::FETCH_OBJ);
           $this->numItemsReturned = $this->query->rowCount();
         } else {
+          // NOTE: for debugging
+          // print_r($this->query->errorInfo());
           $this->error = true;
         }
       }
