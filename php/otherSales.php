@@ -85,9 +85,12 @@ require_once 'Objects.php';
       }else {
         echo "could not find sale";
       }
-    } else {
+    } else if (isset($_GET['lat']) && isset($_GET['lng'])) {
       include 'auto-complete-map.php';
-      include 'list_sales.php';
+      //Redirect::page('otherSales.php?q=null');
+    }else {
+      include 'auto-complete-map.php';
+      //include 'list_sales.php';
     }
     ?>
 
