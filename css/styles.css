@@ -141,3 +141,7 @@ li .drop-link:hover {
   background-color: #e3e3e3!important;
   color: black !important;
 }
+
+.navbar-collapse.in {
+    overflow-y: unset;
+}
