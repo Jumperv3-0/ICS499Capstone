@@ -895,13 +895,14 @@ class SalesListTable {
   }
 
   private function createTable() {
+    $chars = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
     $table = '<h3>Near By:</h3><div class="panel-group">';
     $length = count($this->gsales);
     for ($i = 0; $i < $length; $i++) {
       $dates = DateTimeFormater::getDays($this->gsales[$i][0]->dates);
       $table .=
         "<div class='panel panel-default'>
-          <div class='panel-heading' data-toggle='collapse' data-target='#collapse{$i}' " . ($i === 0 ? "aria-expanded='true'" : "") . ">
+          <div class='panel-heading' id='sale{$i}' data-toggle='collapse' data-target='#collapse{$i}' " . ($i === 0 ? "aria-expanded='true'" : "") . ">
             <h5 class='panel-title collapse-header'>Location:</h5>
             <p class='collapse-header-text'>{$this->places[$i]->street_number} {$this->places[$i]->route} {$this->places[$i]->locality}, {$this->places[$i]->administrative_area_level_1} {$this->places[$i]->postal_code}</p>
             <span class='glyphicon glyphicon-chevron-down pull-right' aria-hidden='true'></span>
@@ -910,7 +911,6 @@ class SalesListTable {
             <div class='panel-body'>
               <div class='row text-center'>
                 <h5 class='collapse-header'>{$this->gsales[$i][0]->sale_name}</h5>
-                <p></p>
               </div>
               <div class='row'>
                 <div class='col-sm-2'>
@@ -926,6 +926,15 @@ class SalesListTable {
                 </div>
               </div>
               <div class='row'>
+                <div class='col-xs-12 col-sm-4'>
+                  <div class='row'>
+                    <div class='col-sm-6'>
+                      <h5 class='collapse-header'>Marker:</h5>
+                    </div>
+                    <div class='col-sm-6'>
+                      <p>{$chars[$i]}</p></div>
+                    </div>
+                  </div>
                 <div class='col-xs-12 col-sm-8 pull-right'>
                   <a class='btn btn-primary form-control' href='otherSales.php?gsale_id={$this->gsales[$i][0]->gsale_id}'>See Details&nbsp;<span class='glyphicon glyphicon-eye-open' aria-hidden='true'></span></a>
                 </div>
