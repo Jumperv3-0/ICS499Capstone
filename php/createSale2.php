@@ -175,8 +175,8 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
     <header>
       <?php
 
-        $pageBuilder = new CreateSalesPage();
-        $pageBuilder->getHeader();
+  $pageBuilder = new CreateSalesPage();
+      $pageBuilder->getHeader();
       ?>
     </header>
     <div class="container">
@@ -187,37 +187,42 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           $validator = new validation();
           $rules = array(
             'sale_name' => array(
-	      'name' => "Sale Name",
+              'name' => "Sale Name",
               'required' => true,
               'min' => 4,
               'max' => 22
             ),
             'description' => array(
+              'name' => 'Description',
               'max' => 1500,
               'required' => true
             ),
             'date' => array(
               'required' => true,
-              'date' => true
+              'date' => true,
+              'name' => 'Date'
               // TODO: chage date rules after today
+              // TODO: change date to YYYY/mm/dd
             ),
             'startTime' => array(
-	      'name' => "Start Time",
+              'name' => "Start Time",
               'required' => true,
               'startTime' => true
             ),
             'endTime' => array(
-	      'name' => "End Time",
+              'name' => "End Time",
               'required' => true,
               'endTime' => true
             ),
             'location' => array(
               'required' => true,
-              'address' => true
+              'address' => true,
+              'name' => 'Location'
             ),
             'phone' => array(
               'required' => true,
-              'phone' => true
+              'phone' => true,
+              'name' => 'Phone number'
             ));
           $image = new ImageProcesser("image");
           $validation = $validator->check($_POST, $rules);
@@ -280,7 +285,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           <input type="text" class="form-control" id="sale_name" name="sale_name" value="<?php echo(isset($_POST['sale_name']) ? sanitizeInput($_POST['sale_name']) : ''); ?>" placeholder="Enter name of sale">
         </div>
         <div class="form-group">
-	  <label for="image">Picture of Sale (Optional):</label>
+          <label for="image">Picture of Sale (Optional):</label>
           <input type="file" id="image" name="image">
         </div>
         <div class="form-group">
