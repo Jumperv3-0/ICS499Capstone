@@ -860,7 +860,31 @@ class CreateSalesPage extends PageBuilder
   }
 }
 
+class ItemsListTable {
+  private $db_conn, $items, $gsales;
+  public function __construct() {
+    $this->db_conn = SqlManager::getInstance();
+  }
 
+  public function getTable($item, $catagory, $size = 5) {
+    $this->getTableData($item, $catagory, $size);
+    echo $this->createTable();
+  }
+
+  private function getTableData($item, $catagory, $size) {
+    // get five active sales
+    $sql = "Select";
+  }
+
+  public function getItems() {
+    return $this->items;
+  }
+
+  public function getSales() {
+    return $this->gsales;
+  }
+
+}
 class SalesListTable {
   private $db_conn, $places, $gsales;
   public function __construct() {
@@ -1010,17 +1034,17 @@ class Validation
       foreach ($rules as $rule => $rule_value) {
         $value = sanitizeInput($submit_method[$test]);
         if ($rule === 'required' && empty($value)) {
-          $this->addError("{$test} is required");
+          $this->addError("{$rules['name']} is required");
         } else if (!empty($value)) {
           switch ($rule) {
             case 'min':
               if (strlen($value) < $rule_value) {
-                $this->addError("{$test} must be a minimum of {$rule_value} characters.");
+                $this->addError("{$rules['name']} must be a minimum of {$rule_value} characters.");
               }
               break;
             case 'max':
               if (strlen($value) > $rule_value) {
-                $this->addError("{$test} must be a maximum of {$rule_value} characters.");
+                $this->addError("{$rules['name']} must be a maximum of {$rule_value} characters.");
               }
               break;
             case 'matches':
@@ -1031,7 +1055,7 @@ class Validation
             case 'unique':
               $check = $this->db_conn->query("SELECT * FROM {$rule_value} WHERE {$test} = '{$value}'", array());
               if ($check->getCount() > 0) {
-                $this->addError("{$test} alread exists.");
+                $this->addError("{$rules['name']} alread exists.");
               }
               break;
             case 'email':
@@ -1062,11 +1086,23 @@ class Validation
               }
               break;
             case 'image': // TODO: need to implement
-              var_dump($submit_method[$rule]);
+              var_dump($submit_method[$test]);
+              break;
+            case 'catagory': // TODO: need to implement
+              $catagories = array('all', 'clothes', 'electronic', 'furnture', 'media', 'tool', 'toy', 'vehicle', 'other');
+              $selection = sanitizeInput($submit_method[$test]);
+              if (!in_array($selection, $catagories)) {
+                if (strcmp($selection, "default") == 0) {
+                  $this->addError("Please select a catagory");
+                } else {
+                  $this->addError("Catagory was not valid");
+                }
+              }
               break;
             case 'price': // TODO: need to implement
               break;
-            case 'name': // TODO: need to implement
+            case 'name':
+              // NOTE: Do nothing, rule is only used in error messages
               break;
             case 'lat':
               if (abs(sanitizeInput($submit_method[$rule])) > 90) {
@@ -1654,56 +1690,56 @@ class DateTimeFormater {
 
   private static function parseDay($day) {
     $standard_day = "";
-    $mmddyyyy = explode('/', $day);
+    $yyyymmdd = explode('/', $day);
     $month = "";
     $day_of_week = DateTimeFormater::parseDayOfWeek($day);
-    switch ($mmddyyyy) {
-      case $mmddyyyy[0] == '1':
+    switch ($yyyymmdd) {
+      case $yyyymmdd[1] == '1':
         $month = "Jan";
         break;
-      case $mmddyyyy[0] == '2':
+      case $yyyymmdd[1] == '2':
         $month = "Feb";
         break;
-      case $mmddyyyy[0] == '3':
+      case $yyyymmdd[1] == '3':
         $month = "Mar";
         break;
-      case $mmddyyyy[0] == '4':
+      case $yyyymmdd[1] == '4':
         $month = "Apr";
         break;
-      case $mmddyyyy[0] == '5':
+      case $yyyymmdd[1] == '5':
         $month = "May";
         break;
-      case $mmddyyyy[0] == '6':
+      case $yyyymmdd[1] == '6':
         $month = "Jun";
         break;
-      case $mmddyyyy[0] == '7':
+      case $yyyymmdd[1] == '7':
         $month = "Jul";
         break;
-      case $mmddyyyy[0] == '8':
+      case $yyyymmdd[1] == '8':
         $month = "Aug";
         break;
-      case $mmddyyyy[0] == '9':
+      case $yyyymmdd[1] == '9':
         $month = "Sept";
         break;
-      case $mmddyyyy[0] == '10':
+      case $yyyymmdd[1] == '10':
         $month = "Oct";
         break;
-      case $mmddyyyy[0] == '11':
+      case $yyyymmdd[1] == '11':
         $month = "Nov";
         break;
-      case $mmddyyyy[0] == '12':
+      case $yyyymmdd[1] == '12':
         $month = "Dec";
         break;
     }
-    return $day_of_week . ", " . $month . " " . $mmddyyyy[1];
+    return $day_of_week . ", " . $month . " " . $yyyymmdd[2];
   }
 
   private static function parseDayOfWeek($date) {
     $dates = explode('/', $date);
-    $month = ($dates[0] + 10) % 12;
-    $date = $dates[1];
-    $year = (int)substr($dates[2], 2);
-    $year2 = (int)substr($dates[2], 0, 2);
+    $month = ($dates[1] + 10) % 12;
+    $date = $dates[2];
+    $year = (int)substr($dates[0], 2);
+    $year2 = (int)substr($dates[0], 0, 2);
     $date = ($date + floor((2.6*$month) - .2) -(2*20) + $year + floor($year/4) + floor($year2/4))%7;
     $day = "";
     switch($date) {
