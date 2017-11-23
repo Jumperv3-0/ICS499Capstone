@@ -181,21 +181,90 @@ class User
 /**
  * Class represents an item for sale
  */
-class Item
+class Item extends DB_Object
 { // TODO: need to implement
-  private $db_conn;
 
-  public function __construct($item = null)
+  public function __construct($item_id = null)
   {
-    $this->db_conn = SqlManager::getInstance();
+    parent::__construct();
+    if ($item_id != null) {
+      $this->find($phone_id);
+    }
   }
 
   public function create($params = array())
   {
-    $sql = "";
-    if (!$this->db_conn->query($sql, $params)) {
+    $sql = "INSERT INTO items (price, description, image_url, is_sold, keywords) values (NULL, ?, ?, ?, ?);";
+    $result = $this->db_conn->query($sql, $params);
+    if ($result->getError()) {
       throw new Exception("Error creating item!");
     }
+  }
+
+
+  public function edit ($params = array(), $item_id = null) {
+    $sql = "UPDATE items SET price = ?, description = ?, image_url = ?, is_sold = ?, keywords = ? WHERE item_id = ?";
+    if ($item_id) {
+      $found = $this->find($phone_id);
+      if ($found) {
+        $phone_id = $this->getData()[0]->item_id;
+        array_push($params, $item_id);
+        $result = $this->db_conn->query($sql, $params);
+        if (!$result->getError()) {
+          return true;
+        }
+      }
+    } else {
+      if ($this->exist()) {
+        $item_id = $this->getData()[0]->place_id;
+        array_push($params, $item_id);
+        $result = $this->db_conn->place_id;
+        if (!$result->getError()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // TODO: implement the rest of item methods
+  public function remove($item_id = null) {
+    $sql = "DELETE FROM garage_sales_items WHERE item_fk_id = ?;";
+    $sql = "DELETE FROM items WHERE item_id = ?;";
+    if (!$item_id && $this->exists()) {
+      // TODO: remove current place
+    }
+    if ($item_id != null) {
+      if ($this->find($item_id)) {
+        $result = $this->db_conn->query($sql, array($item_id));
+        if (!$result->getError()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public function find($item_id = null) {
+    if ($item_id) {
+      $sql = "SELECT * FROM items WHERE item_id = ?";
+      $result = $this->db_conn->query($sql, array($item_id));
+      if ($result->getCount()) {
+        $this->data = $result->getResult()[0];
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function lastAdded() {
+    $sql = "SELECT  MAX(item_id) AS item_id FROM items;";
+    $result = $this->db_conn->query($sql, array());
+    if ($result->getCount() > 0) {
+      $this->data = $result->getResult();
+      return true;
+    }
+    return false;
   }
 }
 
@@ -678,7 +747,7 @@ class IndexPage extends PageBuilder
                   <div class='panel-heading' data-toggle='collapse' data-target='#collapse{$count}' aria-expanded='true'>
                     <h4 class='panel-title'><h5 class='collapse-header'>Location:</h5><p class='collapse-header-text'>{$place_location}</p><span class='glyphicon glyphicon-chevron-down pull-right' aria-hidden='true'></span></h4>
                   </div>
-						      <div id='collapse{$count}' class='panel-collapse collapse in' aria-expanded='true' style=''>
+                  <div id='collapse{$count}' class='panel-collapse collapse in' aria-expanded='true' style=''>
                     <div class='panel-body'>
                       <div class='row text-center'>
                         <a class='' href='#{$gsale_id}'>Name: {$sale_name}</a>
@@ -861,30 +930,145 @@ class CreateSalesPage extends PageBuilder
 }
 
 class ItemsListTable {
-  private $db_conn, $items, $gsales;
+  private $db_conn, $items, $numItems, $size, $numPages;
+
   public function __construct() {
     $this->db_conn = SqlManager::getInstance();
   }
 
-  public function getTable($item, $catagory, $size = 5) {
-    $this->getTableData($item, $catagory, $size);
+  public function getTable($item, $catagory, $index, $size = 5) {
+    $this->size = $size;
+    $this->item = $item;
+    $this->catagory = $catagory;
+    $this->index = $index;
+    $this->getTableData();
     echo $this->createTable();
+    echo $this->createPaging();
   }
 
-  private function getTableData($item, $catagory, $size) {
+  private function getTableData() {
     // get five active sales
-    $sql = "Select";
+    $sql = "SELECT i.item_id, i.price, i.description, i.image_url, i.is_sold, i.keywords, gsi.gsale_fk_id FROM `items` AS i
+	           JOIN garage_sales_items AS gsi ON gsi.item_fk_id = i.item_id
+            JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) AS g ON g.gsale_id = gsi.gsale_fk_id
+          WHERE (i.description LIKE ? AND i.keywords LIKE ?) AND i.item_id > ? LIMIT {$this->size};";
+    $params = array("%" . $this->item . "%", "%" . $this->catagory . "%", $this->index);
+    $result = $this->db_conn->query($sql, $params);
+    if (!$result->getError()) {
+      $this->items = $result->getResult();
+    }
   }
+
+  private function createTable() {
+    $html = '<div class="row"><div class="col-sm-12"><ul class="list-group">';
+    if (count($this->items) > 0 ) {
+      foreach($this->items as $item) {
+        $html .=
+          '<li class="list-group-item">
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="row">
+                <div class="col-sm-12">
+                  <img src="' . $item->image_url . '"style="width:100%;" alt="Image of item">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="btn ' . ($item->is_sold == 0? "btn-green" : "btn-danger") . ' form-control">' . ($item->is_sold == 0? "Available" : "Sold") . '</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h3>Price:</h3>
+                  <p>' . $item->price . '</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12">
+                  <h3>Catagory:</h3>
+                  <p>' . explode(",", $item->keywords)[0] . '</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-7">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h3>Description:</h3>
+                  <p>' . $item->description . '</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3 col-md-2 pull-right">
+              <a class="btn btn-primary form-control" href="otherSales.php?gsale_id=' . $item->gsale_fk_id . '">View Sale</a>
+            </div>
+          </div>
+        </li>';
+      }
+    } else {
+      $html .=
+        '<li class="list-group-item">
+            <div class="row">
+              <div class="col-sm-12">
+                <p>No matching items found</p>
+              </div>
+            </div>
+          </li>';
+    }
+
+
+    $html .= '</ul></div></div>';
+    return $html;
+  }
+
+  private function getPagingData() {
+    $sql = "SELECT COUNT(i.item_id) AS count FROM `items` AS i
+	           JOIN garage_sales_items AS gsi ON gsi.item_fk_id = i.item_id
+            JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) AS g ON g.gsale_id = gsi.gsale_fk_id
+          WHERE (i.description LIKE ? AND i.keywords LIKE ?) AND i.item_id > ?;";
+    $params = array("%" . $this->item . "%", "%" . $this->catagory . "%", $this->index);
+    $result = $this->db_conn->query($sql, $params);
+    if (!$result->getError()) {
+      $this->numItems = $result->getResult()[0]->count;
+    }
+    $this->numPages = (int)($this->numItems / $this->size);
+  }
+
+  private function createPaging() {
+    $this->getPagingData();
+    if ($this->numPages > 0) {
+      $html =
+        '<div class="row">
+          <div class="col-sm-12 text-center">
+            <nav aria-label="Page navigation">
+              <ul class="pagination">';
+      var_dump($this->numPages);
+      for ($i = 0; $i < (int)$this->numPages; $i++) {
+        // TODO: check if isset start_index and grey out page
+        $html .= '<li><a href="?start_index=' . (($i+1) * (int)$this->size) . '">'. ($i+1) .'</a></li>';
+      }
+      $html .= '
+              </ul>
+            </nav>
+          </div>
+        </div>';
+      return $html;
+    } else {
+      // do nothing
+      return "";
+    }
+  }
+
 
   public function getItems() {
     return $this->items;
   }
 
-  public function getSales() {
-    return $this->gsales;
-  }
-
 }
+
 class SalesListTable {
   private $db_conn, $places, $gsales;
   public function __construct() {
@@ -901,7 +1085,10 @@ class SalesListTable {
   }
 
   private function getTableData($lat, $lng, $index, $size) {
-    $sql = "SELECT *,SQRT(POWER(? - places.lat, 2) + POWER(? - places.lng,2)) AS Distance FROM places WHERE place_id > ? ORDER BY Distance ASC LIMIT " . $size;
+    $sql = "SELECT *,SQRT(POWER(? - p.lat, 2) + POWER(? - p.lng,2)) AS Distance FROM places AS p
+	         JOIN garage_sales_places AS g_fk ON p.place_id = g_fk.place_fk_id
+          JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) g ON g.gsale_id = g_fk.garage_sale_fk_id
+        WHERE p.place_id > ? ORDER BY Distance ASC LIMIT " . $size;
     $params = array($lat, $lng, $index);
     $result = $this->db_conn->query($sql,$params);
     if (!$result->getError()) {
@@ -922,10 +1109,11 @@ class SalesListTable {
     $chars = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
     $table = '<h3>Near By:</h3><div class="panel-group">';
     $length = count($this->gsales);
-    for ($i = 0; $i < $length; $i++) {
-      $dates = DateTimeFormater::getDays($this->gsales[$i][0]->dates);
-      $table .=
-        "<div class='panel panel-default'>
+    if ($length != 0) {
+      for ($i = 0; $i < $length; $i++) {
+        $dates = DateTimeFormater::getDays($this->gsales[$i][0]->dates);
+        $table .=
+          "<div class='panel panel-default'>
           <div class='panel-heading' id='sale{$i}' data-toggle='collapse' data-target='#collapse{$i}' " . ($i === 0 ? "aria-expanded='true'" : "") . ">
             <h5 class='panel-title collapse-header'>Location:</h5>
             <p class='collapse-header-text'>{$this->places[$i]->street_number} {$this->places[$i]->route} {$this->places[$i]->locality}, {$this->places[$i]->administrative_area_level_1} {$this->places[$i]->postal_code}</p>
@@ -966,7 +1154,11 @@ class SalesListTable {
             </div>
           </div>
         </div>";
+      }
+    } else {
+      // FIXME: what to do if no active sales can be found
     }
+
     $table .= '</div>';
     return $table;
 
