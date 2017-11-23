@@ -34,11 +34,11 @@ $gsale_data = $gsale->getData();
         <h3>Phone:</h3>
         <div>
           <?php
-            $db_conn = SqlManager::getInstance();
-            $sql = "SELECT phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id = garage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id = ?;";
-            $result = $db_conn->query($sql, array($gsale_data->gsale_id));
-            echo $result->getResult()[0]->phone_number;
-          ?>
+        $db_conn = SqlManager::getInstance();
+        $sql = "SELECT phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id = garage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id = ?;";
+        $result = $db_conn->query($sql, array($gsale_data->gsale_id));
+        echo $result->getResult()[0]->phone_number;
+        ?>
         </div>
       </div>
     </div>
@@ -82,23 +82,40 @@ $gsale_data = $gsale->getData();
     $count = count($item_data);
     $html = '';
     for ($i = 0; $i < $count; $i++) {
-    $html .= '
+      $html .= '
       <div class="row">
         <div class="col-sm-3">
-          <img src="../uploads/' . $item_data[$i]->image_url . '" alt="Picture of item for sale">
+          <div class="row">
+            <div class="col-sm-12">
+              <img src="../uploads/' . $item_data[$i]->image_url . '" alt="Picture of item for sale">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <br>
+              <div class="' . ($item_data[$i]->is_sold == 0? "btn-green" : "btn-danger") . ' form-control">' . ($item_data[$i]->is_sold == 0? "Available" : "Is sold") . '</div>
+            </div>
+          </div>
         </div>
         <div class="col-sm-2">
-          <h3>Price:</h3>
-          <p>' . $item_data[$i]->price . '</p>
+          <div class="row">
+            <div class="col-sm-12">
+              <h3>Price:</h3>
+              <p>' . $item_data[$i]->price . '</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <h3>Catagory:</h3>
+              <p>' . explode(",", $item_data[$i]->keywords)[0] . '</p>
+            </div>
+          </div>
         </div>
         <div class="col-sm-7">
           <h3>Description:</h3>
           <p>' . $item_data[$i]->description . '</p>
         </div>
-      </div>
-    <div class="row">
-      <h3></h3>
-    </div>';
+      </div>';
     }
     $html .= '</div>';
     echo $html;
