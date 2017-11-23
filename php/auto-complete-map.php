@@ -32,9 +32,9 @@ if (isset($_GET['lat']) && isset($_GET['lng']) && isset($_GET['index'])) {
 function getClosestSales($lat, $lng, $index, $size = 5) {
   // NOTE: Limit can not be dynamic and must be a number
   $db_conn = SqlManager::getInstance();
-  $sql = "SELECT place_id,SQRT(POWER(? - p.lat, 2) + POWER(? - p.lng,2)) AS Distance FROM places AS p
+  $sql = "SELECT *,SQRT(POWER(? - p.lat, 2) + POWER(? - p.lng,2)) AS Distance FROM places AS p
 	         JOIN garage_sales_places AS g_fk ON p.place_id = g_fk.place_fk_id
-          JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) > CURRENT_DATE) g ON g.gsale_id = g_fk.garage_sale_fk_id
+          JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) g ON g.gsale_id = g_fk.garage_sale_fk_id
         WHERE p.place_id > ? ORDER BY Distance ASC LIMIT " . $size;
   $params = array($lat, $lng, $index);
   $result = $db_conn->query($sql,$params);
