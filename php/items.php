@@ -26,7 +26,7 @@ require_once 'Objects.php';
   <body>
     <header>
       <?php
-  $pageBuilder = new ItemsPage();
+      $pageBuilder = new ItemsPage();
       $pageBuilder->getHeader();
       ?>
     </header>
@@ -50,7 +50,6 @@ require_once 'Objects.php';
             ));
           $validation = $validator->check($_POST, $rules);
           if ($validation->passed()) {
-            echo "all input valid";
             // TODO: Get matches
           } else {
             foreach ($validation->getErrors() as $error) {
@@ -93,29 +92,6 @@ require_once 'Objects.php';
       <!-- FIXME: uses get instead of post -->
       <!-- FIXME: number of pages should be dynamic -->
       <!-- FIXME: number of pages should be dynamic -->
-      <div class="row">
-        <div class="col-sm-12 text-center">
-          <nav aria-label="Page navigation">
-            <ul class="pagination">
-              <li>
-                <a href="#" aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <li><a href="?">1</a></li>
-              <li><a href="#">2</a></li>
-              <li><a href="#">3</a></li>
-              <li><a href="#">4</a></li>
-              <li><a href="#">5</a></li>
-              <li>
-                <a href="#" aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
 
       <br>
       <br>
@@ -124,42 +100,39 @@ require_once 'Objects.php';
       if (!$validation) {
         // desplay nothing
       } else {
-
+        if ($validation->passed()) {
+          $table = new ItemsListTable();
+          $numberOfItems = 5;
+          $startingIndex = 0;
+          echo $table->getTable(sanitizeInput($_POST['search']), sanitizeInput($_POST['select']), $startingIndex, $numberOfItems);
+        }
       }
       ?>
-      <div class="row">
-        <div class="col-sm-12">
-          <ul class="list-group">
-            <li class="list-group-item">First item</li>
-            <li class="list-group-item">Second item</li>
-            <li class="list-group-item">Third item</li>
-          </ul>
-        </div>
-      </div>
-
     </div>
-    <!-- FUTURE: replacement of select option
-<div class="container">
-<div class="input-group">
-<input type="text" id="category" class="form-control dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" placeholder="Click for Options" aria-describedby="catagory" readonly>
-<label class="input-group-addon" for="category"><span class="caret"></span></label>
-<ul class="dropdown-menu" id="choice">
-<li class="category-option"><a href="#">---</a></li>
-<li class="category-option"><a href="#">All Catagories</a></li>
-<li class="category-option"><a href="#">Clothes</a></li>
-<li class="category-option"><a href="#">Electronics</a></li>
-<li class="category-option"><a href="#">Furnture</a></li>
-<li class="category-option"><a href="#">Media eg.(Books, Magazines, Music, Movies)</a></li>
-<li class="category-option"><a href="#">Tools</a></li>
-<li class="category-option"><a href="#">Electronics</a></li>
-<li class="category-option"><a href="#">Toys</a></li>
-<li class="category-option"><a href="#">Vehicle</a></li>
-<li class="category-option"><a href="#">Clothes</a></li>
-<li class="category-option"><a href="#">Other</a></li>
-</ul>
-</div>
-</div>
--->
+    <!--FUTURE: replacement of select option-->
+    <!--
+    <div class="container">
+    <div class="input-group">
+    <input type="text" id="category" class="form-control dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" placeholder="Click for Options" aria-describedby="catagory" readonly>
+    <label class="input-group-addon" for="category"><span class="caret"></span></label>
+    <ul class="dropdown-menu" id="choice">
+    <li class="category-option"><a href="#">---</a></li>
+    <li class="category-option"><a href="#">All Catagories</a></li>
+    <li class="category-option"><a href="#">Clothes</a></li>
+    <li class="category-option"><a href="#">Electronics</a></li>
+    <li class="category-option"><a href="#">Furnture</a></li>
+    <li class="category-option"><a href="#">Media eg.(Books, Magazines, Music, Movies)</a></li>
+    <li class="category-option"><a href="#">Tools</a></li>
+    <li class="category-option"><a href="#">Electronics</a></li>
+    <li class="category-option"><a href="#">Toys</a></li>
+    <li class="category-option"><a href="#">Vehicle</a></li>
+    <li class="category-option"><a href="#">Clothes</a></li>
+    <li class="category-option"><a href="#">Other</a></li>
+    </ul>
+    </div>
+    </div>
+    -->
+
 
 
     <footer>
