@@ -1025,7 +1025,7 @@ class ItemsListTable {
   }
 
   private function getPagingData() {
-    $sql = "SELECT COUNT(i.item_id) AS count FROM `items` AS i
+    $sql = "SELECT i.item_id,COUNT(i.item_id) AS count FROM `items` AS i
 	           JOIN garage_sales_items AS gsi ON gsi.item_fk_id = i.item_id
             JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) AS g ON g.gsale_id = gsi.gsale_fk_id
           WHERE (i.description LIKE ? AND i.keywords LIKE ?) AND i.item_id > ?;";
@@ -1037,6 +1037,7 @@ class ItemsListTable {
     $this->numPages = (int)($this->numItems / $this->size);
   }
 
+  // FIXME: how to get paging index
   private function createPaging() {
     $this->getPagingData();
     if ($this->numPages > 0) {
@@ -1045,10 +1046,23 @@ class ItemsListTable {
           <div class="col-sm-12 text-center">
             <nav aria-label="Page navigation">
               <ul class="pagination">';
-      var_dump($this->numPages);
       for ($i = 0; $i < (int)$this->numPages; $i++) {
         // TODO: check if isset start_index and grey out page
-        $html .= '<li><a href="?start_index=' . (($i+1) * (int)$this->size) . '">'. ($i+1) .'</a></li>';
+        $lastItemIndex = '';
+        if (isset($_GET['start_index'])) {
+          if (sanitizeInput($_GET['start_index']) == $i) {
+            $html .= '<li class="active"><a href="?start_index=' . (($i+1) * (int)$this->size) . '&search=' . $this->item . '&select=' . $this->catagory . '">'. ($i+1) .'</a></li>';
+          } else {
+            $html .= '<li><a href="?start_index=' . (($i+1) * (int)$this->size) . '&search=' . $this->item . '&select=' . $this->catagory . '">'. ($i+1) .'</a></li>';
+          }
+        } else {
+          if ($i == 0) {
+            $html .= '<li class="active"><a href="?start_index=' . (($i+1) * (int)$this->size) . '&search=' . $this->item . '&select=' . $this->catagory . '">'. ($i+1) .'</a></li>';
+          } else {
+            $html .= '<li><a href="?start_index=' . (($i+1) * (int)$this->size) . '&search=' . $this->item . '&select=' . $this->catagory . '">'. ($i+1) .'</a></li>';
+          }
+        }
+
       }
       $html .= '
               </ul>

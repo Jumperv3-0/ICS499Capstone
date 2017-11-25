@@ -2,8 +2,8 @@
 require_once 'init.php';
 require_once 'Objects.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
   <head>
     <title>
@@ -20,6 +20,7 @@ require_once 'Objects.php';
       .category-option a:hover {
         background: #ccc !important;
       }
+
     </style>
   </head>
 
@@ -57,18 +58,43 @@ require_once 'Objects.php';
             }
           }
         }
+      } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        if (isset($_GET['start_index']) && isset($_GET['select']) && isset($_GET['search'])) {
+          $validator = new Validation();
+          $rules = array(
+            'select' => array(
+              'required' => true,
+              'name' => "Select catagory",
+              'catagory' => true
+            ),
+            'search' => array(
+              'required' => true,
+              'name' => 'Search',
+              'min' => 2,
+              'max' => 20
+            ));
+          $validation = $validator->check($_GET, $rules);
+          if ($validation->passed()) {
+            // TODO: Get matches
+          } else {
+            foreach ($validation->getErrors() as $error) {
+              echo $error . "<br>";
+            }
+          }
+        }
       }
       ?>
-      <div class="row">
-        <div class="col-sm-12"><h1>Items</h1></div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12">
-          <form method="post" action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>">
-            <!-- TODO: should the select have fewer catagories -->
-            <div class="form-group">
-              <label for="select">Select Catagory</label>
-              <select name="select" id="select">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1>Items</h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <form method="post" action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>">
+              <div class="form-group">
+                <label for="select">Select Catagory</label>
+                <select name="select" id="select">
                 <option value="default">---</option>
                 <option value="all" <?php  if (isset($_POST['select'])) {(strcmp(sanitizeInput($_POST['select']), 'all') ==0? 'selected' : '');} ?>>All Catagories</option>
                 <option value="clothes" <?php if (isset($_POST['select'])) {(strcmp(sanitizeInput($_POST['select']), 'clothes') ==0? 'selected' : '');} ?>>Clothes</option>
@@ -80,31 +106,40 @@ require_once 'Objects.php';
                 <option value="vehicle" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'vehicle') ==0? 'selected' : '');} ?>>Vehicle</option>
                 <option value="other" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'other') ==0? 'selected' : '');} ?>>Other</option>
               </select>
-              <input type="text" class="form-control" id="search" name="search" placeholder="Search for item">
-            </div>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search for item">
+              </div>
 
-            <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-            <input type="submit" name="submit" class="btn btn-green pull-right" value="Search">
-          </form>
+              <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+              <input type="submit" name="submit" class="btn btn-green pull-right" value="Search">
+            </form>
+          </div>
         </div>
-      </div>
 
-      <!-- FIXME: uses get instead of post -->
-      <!-- FIXME: number of pages should be dynamic -->
-      <!-- FIXME: number of pages should be dynamic -->
+        <!-- FIXME: uses get instead of post -->
+        <!-- FIXME: number of pages should be dynamic -->
 
-      <br>
-      <br>
-      <br>
-      <?php
+        <br>
+        <br>
+        <br>
+        <?php
       if (!$validation) {
         // desplay nothing
       } else {
         if ($validation->passed()) {
           $table = new ItemsListTable();
-          $numberOfItems = 5;
+          $numberOfItems = 1;
           $startingIndex = 0;
-          echo $table->getTable(sanitizeInput($_POST['search']), sanitizeInput($_POST['select']), $startingIndex, $numberOfItems);
+          if (isset($_POST['select']) && isset($_POST['search'])) {
+            echo "<div>post</div>";
+            $catagory = sanitizeInput($_POST['select']);
+            $search = sanitizeInput($_POST['search']);
+          } else if (isset($_GET['select']) && isset($_GET['search']) && isset($_GET['start_index'])) {
+            echo "<div>get</div>";
+            $catagory = sanitizeInput($_GET['select']);
+            $search = sanitizeInput($_GET['search']);
+            $startingIndex = sanitizeInput($_GET['start_index']);
+          }
+          echo $table->getTable($search, $catagory, $startingIndex, $numberOfItems);
         }
       }
       ?>
@@ -161,4 +196,4 @@ require_once 'Objects.php';
     </script>
   </body>
 
-</html>
+  </html>
