@@ -130,16 +130,14 @@ require_once 'Objects.php';
           $numberOfItems = 1;
           $startingIndex = 0;
           if (isset($_POST['select']) && isset($_POST['search'])) {
-            echo "<div>post</div>";
             $catagory = sanitizeInput($_POST['select']);
             $search = sanitizeInput($_POST['search']);
-          } else if (isset($_GET['select']) && isset($_GET['search']) && isset($_GET['start_index'])) {
+          } else if (isset($_GET['select']) && isset($_GET['search'])) { // FUTURE: was going to be used for paging
             echo "<div>get</div>";
             $catagory = sanitizeInput($_GET['select']);
             $search = sanitizeInput($_GET['search']);
-            $startingIndex = sanitizeInput($_GET['start_index']);
           }
-          echo $table->getTable($search, $catagory, $startingIndex, $numberOfItems);
+          echo $table->getTable($search, $catagory, $startingIndex);
         }
       }
       ?>
