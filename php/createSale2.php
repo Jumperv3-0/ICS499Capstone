@@ -118,57 +118,35 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
           });
       }
 
+      var lastLength = 0;
       function formatPhone() {
         var el = document.getElementById('phone');
         var phoneNumber = el.value;
-        phoneNumber = phoneNumber.replace(/\D+/, '');
-        if (phoneNumber.length > 0) {
-          phoneNumber = '(' + phoneNumber;
-        }
-        if (phoneNumber.length === 4) {
-          phoneNumber = phoneNumber + ')-';
-        }
-        if (phoneNumber.length === 9) {
-          phoneNumber = phoneNumber + '-';
-        }
-        if (phoneNumber.length == 14) {
-          phoneNumber = phoneNumber.replace(/\D+/g, '');
-          phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
-        }
-        if (phoneNumber.length >= 15) {
-          phoneNumber = phoneNumber.replace(/\D+/g, '');
-          phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
-        }
-        el.value = phoneNumber;
-      }
-
-      function phoneFormat() { // FUTURE: make phone format work with deleteing numbers
-        var el = document.getElementById('phone');
-        var phoneNumber = el.value;
-        phoneNumber = phoneNumber.replace(/\D/g, '');
-        if (phoneNumber.length > 0) {
-          phoneNumber = '(' + phoneNumber;
-        }
-        if (phoneNumber.length >= 4) {
-          phoneNumber = phoneNumber.substring() + ')';
-        }
-        if (phoneNumber.length >= 5) {
-          phoneNumber = phoneNumber + "-";
-        }
-        if (phoneNumber.length >= 9) {
-          phoneNumber = phoneNumber + "-";
-        }
-        if (phoneNumber.length == 14) {
-          phoneNumber = phoneNumber.replace(/\D/g, '');
-          phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
-        }
-        if (phoneNumber.length == 15) {
-          phoneNumber = phoneNumber.replace(/\D/g, '');
-          phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
+        phoneNumber = phoneNumber.replace(/\D+/g, '');
+        if (lastLength >= phoneNumber.length) {
+          lastLength = phoneNumber.length;
+        } else {
+          if (phoneNumber.length > 0) {
+            phoneNumber = '(' + phoneNumber;
+          }
+          if (phoneNumber.length >= 4) {
+            phoneNumber = phoneNumber.substr(0,4) + ')-' + phoneNumber.substring(4, phoneNumber.length);
+          }
+          if (phoneNumber.length >= 9) {
+            phoneNumber = phoneNumber.substr(0,9) + '-' + phoneNumber.substring(9, phoneNumber.length);
+          }
+          if (phoneNumber.length >= 15 && phoneNumber.length < 16) {
+            phoneNumber = phoneNumber.replace(/\D+/g, '');
+            phoneNumber = phoneNumber.charAt(0) + "(" + phoneNumber.substring(1, 4) + ")-" + phoneNumber.substring(4, 7) + "-" + phoneNumber.substring(7);
+          }
+          if (phoneNumber.length >= 16) {
+            phoneNumber = phoneNumber.replace(/\D+/g, '');
+            phoneNumber = phoneNumber.substring(0, 2) + "(" + phoneNumber.substring(2, 5) + ")-" + phoneNumber.substring(5, 8) + "-" + phoneNumber.substring(8);
+          }
+          el.value = phoneNumber;
+          lastLength = phoneNumber.length;
         }
 
-        el.value = phoneNumber;
-        //alert(phoneNumber);
       }
 
     </script>
@@ -224,13 +202,18 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
               'phone' => true,
               'name' => 'Phone number'
             ));
-          $image = new ImageProcesser("image");
+          $filename = "";
+          if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $filename = 'image';
+          } else {
+            $filename = null;
+          }
+          $image = new ImageProcesser($filename);
           $validation = $validator->check($_POST, $rules);
-          $formattedDates = formatDates();
           if ($validation->passed() && count($image->getErrors()) === 0) {      // input passed all validaiton
             try {
+              $formattedDates = formatDates();
               $user = new User();
-              var_dump($user);
               $place = new Place();
               $place->getPlaceJSON(sanitizeInput($_POST['location']));
               $place->create();
@@ -238,7 +221,6 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
               $phone->create(array(Phone::formatNumber(sanitizeInput($_POST['phone']))));
               $gsale = new GarageSale();
               $gsale->create(array(sanitizeInput($_POST['sale_name']), $image->getNewName(), sanitizeInput($_POST['description']), $formattedDates));
-              // TODO: create Place, GarageSale, 
               $gsale_data;
               $place_data;
               $phone_data;
@@ -290,7 +272,7 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         </div>
         <div class="form-group">
           <label for="description">General Description:</label>
-          <textarea class="form-control" rows="4" cols="50" id="description" name="description" placeholder="Enter a description of the types of item for sale"><?php echo(isset($_POST['description']) ? sanitizeInput($_POST['description']) : ''); ?></textarea>
+          <textarea class="form-control" rows="4" cols="50" id="description" name="description" placeholder="Tell us about your sale and the types of items you'll have"><?php echo(isset($_POST['description']) ? sanitizeInput($_POST['description']) : ''); ?></textarea>
         </div>
         <div id="date-time" class="form-group">
           <div class="row">
@@ -322,11 +304,11 @@ if (!$user->isLoggedIn()) {   // User must be logged in to see page else redirec
         </div>
         <div id="locationField" class="form-group">
           <label for="location">Location:</label>
-          <input type="location" class="form-control" id="location" onFocus="geolocate()" name="location" value="<?php echo(isset($_POST['location']) ? sanitizeInput($_POST['location']) : ''); ?>" placeholder="Enter location of sale">
+          <input type="location" class="form-control" id="location" name="location" value="<?php echo(isset($_POST['location']) ? sanitizeInput($_POST['location']) : ''); ?>" placeholder="Enter location of sale">
         </div>
         <div class="form-group">
           <label for="phone">Phone:</label>
-          <input type="phone" class="form-control" id="phone" name="phone" placeholder="(xxx)-xxx-xxxx" onkeypress="formatPhone()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>" maxlength="16">
+          <input type="phone" class="form-control" id="phone" name="phone" placeholder="(xxx)-xxx-xxxx" onKeyUp="formatPhone()" onkeypress="formatPhone()" value="<?php echo(isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : ''); ?>" maxlength="16">
         </div>
         <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
         <div class="row">
