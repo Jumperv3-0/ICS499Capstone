@@ -936,14 +936,13 @@ class ItemsListTable {
     $this->db_conn = SqlManager::getInstance();
   }
 
-  public function getTable($item, $catagory, $index, $size = 5) {
-    $this->size = $size;
+  public function getTable($item, $catagory, $index) {
     $this->item = $item;
     $this->catagory = $catagory;
     $this->index = $index;
     $this->getTableData();
     echo $this->createTable();
-    echo $this->createPaging();
+    //echo $this->createPaging();
   }
 
   private function getTableData() {
@@ -951,7 +950,7 @@ class ItemsListTable {
     $sql = "SELECT i.item_id, i.price, i.description, i.image_url, i.is_sold, i.keywords, gsi.gsale_fk_id FROM `items` AS i
 	           JOIN garage_sales_items AS gsi ON gsi.item_fk_id = i.item_id
             JOIN (SELECT g.gsale_id FROM garage_sales AS g WHERE DATE(RIGHT(g.dates, 10)) >= CURRENT_DATE) AS g ON g.gsale_id = gsi.gsale_fk_id
-          WHERE (i.description LIKE ? AND i.keywords LIKE ?) AND i.item_id > ? LIMIT {$this->size};";
+          WHERE (i.description LIKE ? AND i.keywords LIKE ?) AND i.item_id > ?;";
     $params = array("%" . $this->item . "%", "%" . $this->catagory . "%", $this->index);
     $result = $this->db_conn->query($sql, $params);
     if (!$result->getError()) {
@@ -1332,22 +1331,26 @@ class Validation
               }
               $count = 1;
               foreach ($dates as $date) {
-                if (!is_numeric(substr($date, 0, 4))) {
-                  $this->addError("Date {$count} was not valid");
-                } else if ($date[4] != '-') {
-                  $this->addError("Date {$count} was not valid");
-                } else if (!is_numeric(substr($date, 5, 2))) {
-                  $this->addError("Date {$count} was not valid");
-                } else if ($date[7] != '-') {
-                  $this->addError("Date {$count} was not valid");
-                } else if (!is_numeric(substr($date, 8))) {
-                  $this->addError("Date {$count} was not valid");
-                } else if ((int)substr($date, 0, 4) < (int)date("Y") || (int)substr($date, 5, 2) < (int)date("m") || (int)substr($date, 8) < (int)date("d")) {
-                  $this->addError("Date {$count} can not be before today");
-                } else if ((int)substr($date, 0, 4) == (int)date("Y") && (int)substr($date, 5, 2) == (int)date("m") && (int)substr($date, 8) == (int)date("d") && $startTime != -1) {
-                  //https://maps.googleapis.com/maps/api/timezone/json?location=39.6034810,-119.6822510&timestamp=1331766000&key=YOUR_API_KEY
-                  // TODO: get timezone from google to get correct time
+                if (!empty($date)) {
+                  if (!is_numeric(substr($date, 0, 2)) && (int)substr($date, 3, 2) <= 12 && (int)substr($date, 3, 2) >= 1) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ($date[2] != '/') {
+                    $this->addError("Date {$count} was not valid");
+                  } else if (!is_numeric(substr($date, 3, 2)) && (int)substr($date, 3, 2) <= 31 && (int)substr($date, 3, 2) >= 1) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ($date[5] != '/') {
+                    $this->addError("Date {$count} was not valid");
+                  } else if (!is_numeric(substr($date, 6))) {
+                    $this->addError("Date {$count} was not valid");
+                  } else if ((int)substr($date, 6) < (int)date("Y") || (int)substr($date, 0, 2) < (int)date("m") || (int)substr($date, 3,2) < (int)date("d")) {
+                    $this->addError("Date {$count} can not be before today");
+                  } else if ((int)substr($date, 6) == (int)date("Y") && (int)substr($date, 0, 2) == (int)date("m") && (int)substr($date, 3,2) == (int)date("d") && $startTime != -1) {
+                  }
+                } else {
+                  // $date is empty
+                  $this->addError("{$rules['name']} is required");
                 }
+
                 $count++;
               }
               break;
@@ -1847,6 +1850,7 @@ class DateTimeFormater {
 
   public static function getDays($date_time) {
     $date_time = DateTimeFormater::getDateTime($date_time);
+    //var_dump($date_time);
     $times = array();
     $count = count($date_time);
     if ($count == 1) {
@@ -1980,25 +1984,30 @@ class DateTimeFormater {
 class ImageProcesser {
   private $max_size, $errors, $new_location;
 
-  public function __construct($imageName, $location = "../uploads/sales/") {
+  public function __construct($imageName, $location = "../uploads/") {
     $this->max_size = 500000;
     $this->errors = array();
-    //var_dump($_FILES);
     $newFile = "";
-    $target_file = $location . basename($_FILES[$imageName]["name"]);
-    if ($this->validateImage($imageName, $target_file)) {
-      do {
-        $newFile = $location . $this->getUniqueName() . "." . pathinfo($target_file,PATHINFO_EXTENSION);
-      } while($this->searchImageNames($newFile));
-      if (!$this->transferImage($_FILES[$imageName]["tmp_name"], $newFile)) {
-        $this->errors[] = "Error uploading image";
+    if ($imageName) {
+      $target_file = $location . basename($_FILES[$imageName]["name"]);
+      if ($this->validateImage($imageName, $target_file)) {
+        do {
+          $newFile = $location . $this->getUniqueName() . "." . pathinfo($target_file,PATHINFO_EXTENSION);
+        } while($this->searchImageNames($newFile));
+        if (!$this->transferImage($_FILES[$imageName]["tmp_name"], $newFile)) {
+          $this->errors[] = "Error uploading image";
+        } else {
+          // upload was successful
+          $this->new_location = $newFile;
+        }
       } else {
-        // upload was successful
-        $this->new_location = $newFile;
+        // there was an error
       }
     } else {
-      // there was an error
+      // Image not needed
+      $this->new_location = 'https://dummyimage.com/200x200/333/fff.png&text=No+image+uploaded';
     }
+
   }
 
   private function validateImage($imageName, $target_file) {
