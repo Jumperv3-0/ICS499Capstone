@@ -129,6 +129,7 @@ require_once 'functions.php';
         <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
       </form>
     </div>
+    <br>
     <footer>
       <?php
       PageBuilder::getFooter();
