@@ -38,7 +38,7 @@ require_once 'Objects.php';
         if (isset($_POST['submit']) && Token::check(sanitizeInput($_POST['token']))) {
           $validator = new validation();
           $rules = array(
-            'select' => array(
+            'catagory' => array(
               'required' => true,
               'name' => "Select catagory",
               'catagory' => true
@@ -59,10 +59,10 @@ require_once 'Objects.php';
           }
         }
       } elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
-        if (isset($_GET['start_index']) && isset($_GET['select']) && isset($_GET['search'])) {
+        if (isset($_GET['start_index']) && isset($_GET['catagory']) && isset($_GET['search'])) {
           $validator = new Validation();
           $rules = array(
-            'select' => array(
+            'catagory' => array(
               'required' => true,
               'name' => "Select catagory",
               'catagory' => true
@@ -93,18 +93,18 @@ require_once 'Objects.php';
           <div class="col-sm-12">
             <form method="post" action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>">
               <div class="form-group">
-                <label for="select">Select Catagory</label>
-                <select name="select" id="select">
+                <label for="catagory">Select Catagory</label>
+                <select name="catagory" id="catagory">
                 <option value="default">---</option>
-                <option value="all" <?php  if (isset($_POST['select'])) {(strcmp(sanitizeInput($_POST['select']), 'all') ==0? 'selected' : '');} ?>>All Catagories</option>
-                <option value="clothes" <?php if (isset($_POST['select'])) {(strcmp(sanitizeInput($_POST['select']), 'clothes') ==0? 'selected' : '');} ?>>Clothes</option>
-                <option value="electronic" <?php if (isset($_POST['select'])) {(strcmp(sanitizeInput($_POST['select']), 'electronic') ==0? 'selected' : ''); }?>>Electronics</option>
-                <option value="furnture" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'furnture') ==0? 'selected' : '');} ?>>Furnture</option>
-                <option value="media" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'media') ==0? 'selected' : '');} ?>>Media eg.(Books, Magazines, Music, Movies)</option>
-                <option value="tool" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'tool') ==0? 'selected' : '');} ?>>Tools</option>
-                <option value="toy" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'toy') ==0? 'selected' : '');} ?>>Toys</option>
-                <option value="vehicle" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'vehicle') ==0? 'selected' : '');} ?>>Vehicle</option>
-                <option value="other" <?php if (isset($_POST['select'])) { (strcmp(sanitizeInput($_POST['select']), 'other') ==0? 'selected' : '');} ?>>Other</option>
+                <option value="all" <?php  if (isset($_POST['catagory'])) {(strcmp(sanitizeInput($_POST['catagory']), 'all') ==0? 'selected' : '');} ?>>All Catagories</option>
+                <option value="clothes" <?php if (isset($_POST['catagory'])) {(strcmp(sanitizeInput($_POST['catagory']), 'clothes') ==0? 'selected' : '');} ?>>Clothes</option>
+                <option value="electronic" <?php if (isset($_POST['catagory'])) {(strcmp(sanitizeInput($_POST['catagory']), 'electronic') ==0? 'selected' : ''); }?>>Electronics</option>
+                <option value="furnture" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'furnture') ==0? 'selected' : '');} ?>>Furnture</option>
+                <option value="media" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'media') ==0? 'selected' : '');} ?>>Media eg.(Books, Magazines, Music, Movies)</option>
+                <option value="tool" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'tool') ==0? 'selected' : '');} ?>>Tools</option>
+                <option value="toy" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'toy') ==0? 'selected' : '');} ?>>Toys</option>
+                <option value="vehicle" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'vehicle') ==0? 'selected' : '');} ?>>Vehicle</option>
+                <option value="other" <?php if (isset($_POST['catagory'])) { (strcmp(sanitizeInput($_POST['catagory']), 'other') ==0? 'selected' : '');} ?>>Other</option>
               </select>
                 <input type="text" class="form-control" id="search" name="search" placeholder="Search for item">
               </div>
@@ -129,12 +129,12 @@ require_once 'Objects.php';
           $table = new ItemsListTable();
           $numberOfItems = 1;
           $startingIndex = 0;
-          if (isset($_POST['select']) && isset($_POST['search'])) {
-            $catagory = sanitizeInput($_POST['select']);
+          if (isset($_POST['catagory']) && isset($_POST['search'])) {
+            $catagory = sanitizeInput($_POST['catagory']);
             $search = sanitizeInput($_POST['search']);
-          } else if (isset($_GET['select']) && isset($_GET['search'])) { // FUTURE: was going to be used for paging
+          } else if (isset($_GET['catagory']) && isset($_GET['search'])) { // FUTURE: was going to be used for paging
             echo "<div>get</div>";
-            $catagory = sanitizeInput($_GET['select']);
+            $catagory = sanitizeInput($_GET['catagory']);
             $search = sanitizeInput($_GET['search']);
           }
           echo $table->getTable($search, $catagory, $startingIndex);
