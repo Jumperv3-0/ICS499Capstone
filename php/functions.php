@@ -26,8 +26,9 @@ function formatDates() {
     $date = $date[2] . '/' . $date[0] . '/' . $date[1];
     if ($i + 1 == count($_POST['date'])) {
       $string .= sanitizeInput($_POST['startTime'][$i]) . "-" . sanitizeInput($_POST['endTime'][$i]) . "-" . $date;
+    } else {
+      $string .= sanitizeInput($_POST['startTime'][$i]) . "-" . sanitizeInput($_POST['endTime'][$i]) . "-" . $date . ",";
     }
-    $string .= sanitizeInput($_POST['startTime'][$i]) . "-" . sanitizeInput($_POST['endTime'][$i]) . "-" . $date . ",";
   }
   return $string;
 }
