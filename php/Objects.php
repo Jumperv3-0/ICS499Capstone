@@ -176,6 +176,16 @@ class User
     Session::delete($this->sessionName);
     Cookie::delete($this->cookieName);
   }
+
+  public function hasSale($gsale_id) {
+    $sql = "SELECT * FROM garage_sales_users WHERE user_fk_id = ? AND garage_sales_fk_id = ?";
+    $params = array($this->data()->user_id, $gsale_id);
+    $result = $this->db_conn->query($sql, $params);
+    if ($result->getCount() > 0) {
+      return true;
+    }
+    return false;
+  }
 }
 
 /**
@@ -194,8 +204,19 @@ class Item extends DB_Object
 
   public function create($params = array())
   {
-    $sql = "INSERT INTO items (price, description, image_url, is_sold, keywords) values (NULL, ?, ?, ?, ?);";
+    $sql = "INSERT INTO items (item_id, price, description, image_url, is_sold, keywords) values (null, ?, ?, ?, ?, ?);";
+    var_dump($params);
+    $gsale_id = array_pop($params);
+    var_dump($params);
     $result = $this->db_conn->query($sql, $params);
+    if ($result->getError()) {
+      throw new Exception("Error creating item!");
+    }
+    $sql = "INSERT INTO garage_sales_items (gsale_fk_id, item_fk_id) values (?, ?);";
+    $data = $this->lastAdded();
+    $item_id = $this->getData()[0]->item_id;
+    var_dump($this->getData()->item_id);
+    $result = $this->db_conn->query($sql, array($gsale_id, $item_id));
     if ($result->getError()) {
       throw new Exception("Error creating item!");
     }
@@ -203,11 +224,16 @@ class Item extends DB_Object
 
 
   public function edit ($params = array(), $item_id = null) {
-    $sql = "UPDATE items SET price = ?, description = ?, image_url = ?, is_sold = ?, keywords = ? WHERE item_id = ?";
+    $sql = "";
+    if (count($params) === 5) {
+      $sql .= "UPDATE items SET price = ?, description = ?, image_url = ?, is_sold = ?, keywords = ? WHERE item_id = ?";
+    } else {
+      $sql .= "UPDATE items SET price = ?, description = ?, is_sold = ?, keywords = ? WHERE item_id = ?";
+    }
     if ($item_id) {
-      $found = $this->find($phone_id);
+      $found = $this->find($item_id);
       if ($found) {
-        $phone_id = $this->getData()[0]->item_id;
+        //$item_id = $this->getData()[0]->item_id;
         array_push($params, $item_id);
         $result = $this->db_conn->query($sql, $params);
         if (!$result->getError()) {
@@ -229,7 +255,6 @@ class Item extends DB_Object
 
   // TODO: implement the rest of item methods
   public function remove($item_id = null) {
-    $sql = "DELETE FROM garage_sales_items WHERE item_fk_id = ?;";
     $sql = "DELETE FROM items WHERE item_id = ?;";
     if (!$item_id && $this->exists()) {
       // TODO: remove current place
@@ -272,7 +297,7 @@ class Item extends DB_Object
  * Class represents a garageSale
  */
 class GarageSale
-{ // TODO: need to implement
+{
   private $db_conn,
   $data;
 
@@ -280,7 +305,6 @@ class GarageSale
   {
     $this->db_conn = SqlManager::getInstance();
     if (!$sale) {
-      // TODO: to be implemented?
     } else {
       $this->find($sale);
     }
@@ -310,7 +334,15 @@ class GarageSale
 
   public function editSale($params = array())
   {
-    // TODO: need to implement
+    $sql = "";
+    if (count($params) === 5) {
+      $sql .= "UPDATE garage_sales SET sale_name = ?, image_url = ?, description = ?, dates = ? WHERE gsale_id = ?";
+    } else {
+      $sql .= "UPDATE garage_sales SET sale_name = ?, description = ?, dates = ? WHERE gsale_id = ?";
+    }
+    if (!$this->db_conn->query($sql, $params)) {
+      throw new Exception("Error editing sale!");
+    }
   }
 
   /**
@@ -336,6 +368,22 @@ class GarageSale
       return true;
     }
     return false;
+  }
+
+  public function hasItem($item_id, $gsale_id = null) {
+    $sql = "SELECT * FROM garage_sales_items WHERE gsale_fk_id = ? AND item_fk_id = ?;";
+    if ($gsale_id) {
+      $params = array($item_id, $gsale_id);
+    } else {
+      $params = array($item_id,$this->data->gsale_id);
+    }
+    $result = $this->db_conn->query($sql, $params);
+    if ($result->getCount() > 0) {
+      $this->data = $result->getResult();
+      return true;
+    }
+    return false;
+
   }
 }
 
@@ -815,7 +863,7 @@ class SalesPage extends PageBuilder {
       foreach ($table_data as $row) {
         $dates = DateTimeFormater::getDays($row[0]->dates);
         $dates_max = count($dates);
-        $html .= '<!-- list-group-of-sales -->
+        $html .= '<!-- sale -->
                 <li class="list-group-item">
                   <div class="row">
                     <div class="col-sm-5">
@@ -1037,6 +1085,7 @@ class ItemsListTable {
   }
 
   // FIXME: how to get paging index
+  // NOTE: just send page
   private function createPaging() {
     $this->getPagingData();
     if ($this->numPages > 0) {
@@ -1237,7 +1286,12 @@ class Validation
   {
     foreach ($tests as $test => $rules) {
       foreach ($rules as $rule => $rule_value) {
-        $value = sanitizeInput($submit_method[$test]);
+        if ($submit_method == $_FILES) {
+          $value = $submit_method[$test];
+        } else {
+          $value = sanitizeInput($submit_method[$test]);
+        }
+
         if ($rule === 'required' && empty($value)) {
           $this->addError("{$rules['name']} is required");
         } else if (!empty($value)) {
@@ -1290,21 +1344,104 @@ class Validation
                 }
               }
               break;
-            case 'image': // TODO: need to implement
-              var_dump($submit_method[$test]);
+            case 'image':
+              $images = $submit_method[$rule];
+              $image_params = array('name', 'type', 'tmp_name', 'error', 'size');
+              foreach ($images as $image) {
+                switch ($image) {
+                  case "name":
+                    for ($i = 0; $i < count($submit_method[$rule]->name); $i++) {
+                      if (empty($submit_method[$rule]->name[$i])) {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      }
+                    }
+                    break;
+                  case "type":
+                    break;
+                  case "tmp_name":
+                    break;
+                  case "error":
+                    break;
+                  case "size":
+                    for ($i = 0; $i < count($submit_method[$rule]->size); $i++) {
+                      if ($submit_method[$rule]->size[$i] <= 0) {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      }
+                    }
+                    break;
+                }
+
+              }
+              // FIXME: its all wrong!
+              //              var_dump($value);
+              //              var_dump($rule);
+              //              var_dump($rule_value);
+
+//              $count = 1;
+//              var_dump($submit_method[$rule]);
+//              $size = count($value['name']);
+//              for ($i = 0; $i < $size; $i++) {
+//                if ($size == 1 && strcmp($image_params[0],$submit_method[$rule]) == 0 && getimagesize($submit_method[$rule]->name[$i]) <= 0) {
+//                  $this->addError("{$rules['name']} {$count} was not valid");
+//                } else if($size == 1 && exif_imagetype($image_params[0][$i]) != IMAGETYPE_GIF && exif_imagetype($image_params[0][$i]) != IMAGETYPE_JPEG && exif_imagetype($image_params[0][$i]) != IMAGETYPE_PNG ) {
+//                  $this->addError("Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
+//                }
+//                $count++;
+//              }
               break;
             case 'catagory': // TODO: need to implement
-              $catagories = array('all', 'clothes', 'electronic', 'furnture', 'media', 'tool', 'toy', 'vehicle', 'other');
-              $selection = sanitizeInput($submit_method[$test]);
-              if (!in_array($selection, $catagories)) {
-                if (strcmp($selection, "default") == 0) {
-                  $this->addError("Please select a catagory");
-                } else {
-                  $this->addError("Catagory was not valid");
+              $catagory_array = array();
+              if (count($submit_method[$rule]) == 1) {
+                $catagory_array[] = sanitizeInput($submit_method[$rule]);
+              } else {
+                for ($i = 0; $i < count($submit_method[$rule]); $i++) {
+                  $catagory_array[] = sanitizeInput($submit_method[$rule][$i]);
                 }
               }
+
+              $count = 1;
+              foreach ($catagory_array as $catagory_input) {
+                if (!empty($catagory_input)) {
+                  $catagories = array('all', 'clothes', 'electronic', 'furnture', 'media', 'tool', 'toy', 'vehicle', 'other');
+                  //var_dump($catagory_input);
+                  if (!in_array($catagory_input[0], $catagories)) {
+                    if (strcmp($catagory_input[0], "default") == 0) {
+                      $this->addError("{$rules['name']} {$count} was not valid");
+                    } else {
+                      $this->addError("{$rules['name']} {$count} was not valid");
+                    }
+                  }
+                } else {
+                  $this->addError("{$rules['name']} is required");
+                }
+                $count++;
+              }
+
               break;
             case 'price': // TODO: need to implement
+              $prices = array();
+              if (count($submit_method[$rule]) == 1) {
+                $prices[] = sanitizeInput($submit_method[$rule]);
+              } else {
+                for ($i = 0; $i < count($submit_method[$rule]); $i++) {
+                  $prices[] = sanitizeInput($submit_method[$rule][$i]);
+                }
+              }
+              $count = 1;
+              foreach ($prices as $price) {
+                if (!empty($price[0])) {
+                  if (!is_numeric($price[0])) {
+                    $this->addError("{$rules['name']} {$count} was not a number");
+                  } else if ((float)$price[0] < 0) {
+                    $this->addError("{$rules['name']} {$count} can not be negative");
+                  } else if ((float)$price[0] == 0) {
+                    $this->addError("{$rules['name']} {$count} can not be zero");
+                  }
+                } else {
+                  $this->addError("{$rules['name']} {$count} is required");
+                }
+                $count++;
+              }
               break;
             case 'name':
               // NOTE: Do nothing, rule is only used in error messages
@@ -1319,8 +1456,6 @@ class Validation
                 $this->addError("Longitude out of bounds");
               }
               break;
-            case 'catagory': // TODO: need to implement
-              break;
             case 'date':
               $dates = array();
               for ($i = 0; $i < count($value); $i++) {
@@ -1332,19 +1467,20 @@ class Validation
               $count = 1;
               foreach ($dates as $date) {
                 if (!empty($date)) {
-                  if (!is_numeric(substr($date, 0, 2)) && (int)substr($date, 3, 2) <= 12 && (int)substr($date, 3, 2) >= 1) {
+                  if (!is_numeric(substr($date, 0, 2)) && (int)substr($date, 0, 2) <= 12 && (int)substr($date, 0, 2) >= 1) {
                     $this->addError("Date {$count} was not valid");
                   } else if ($date[2] != '/') {
                     $this->addError("Date {$count} was not valid");
                   } else if (!is_numeric(substr($date, 3, 2)) && (int)substr($date, 3, 2) <= 31 && (int)substr($date, 3, 2) >= 1) {
+                    echo substr($date, 3, 2);
                     $this->addError("Date {$count} was not valid");
                   } else if ($date[5] != '/') {
                     $this->addError("Date {$count} was not valid");
                   } else if (!is_numeric(substr($date, 6))) {
                     $this->addError("Date {$count} was not valid");
-                  } else if ((int)substr($date, 6) < (int)date("Y") || (int)substr($date, 0, 2) < (int)date("m") || (int)substr($date, 3,2) < (int)date("d")) {
+                  } else if (((int)substr($date, 6) < (int)date("Y") || ((int)substr($date, 6) == (int)date("Y") && (int)substr($date, 0, 2) < (int)date("m")) || ( (int)substr($date, 6) == (int)date("Y") && (int)substr($date, 0, 2) == (int)date("m") && (int)substr($date, 3,2) < (int)date("d"))) && count($dates) === 1) {
                     $this->addError("Date {$count} can not be before today");
-                  } else if ((int)substr($date, 6) == (int)date("Y") && (int)substr($date, 0, 2) == (int)date("m") && (int)substr($date, 3,2) == (int)date("d") && $startTime != -1) {
+                  } else if ((int)substr($date, 6) == (int)date("Y") && (int)substr($date, 0, 2) == (int)date("m") && (int)substr($date, 3,2) == (int)date("d") && count($startTime) != -1) {
                   }
                 } else {
                   // $date is empty
@@ -1393,7 +1529,7 @@ class Validation
                 } else if (!is_numeric(substr($time, 3, 2))) {
                   $this->addError("End time {$count} was not a time");
                 }
-                if ((int)substr($time,0, 2) < (int)substr($startTime[$i-1], 0, 2) || (int)substr($time,3, 2) < (int)substr($startTime[$i-1], 3, 2)) {
+                if ((int)substr($time,0, 2) < (int)substr($startTime[$count-1], 0, 2) || (int)substr($time,3, 2) < (int)substr($startTime[$count-1], 3, 2)) {
                   $this->addError("End time {$count} must not be before Start time");
                 }
                 /* FUTURE: time vaild if its after current time today, currently only checking current time not future times.
@@ -1743,7 +1879,7 @@ class Place extends DB_Object {
   }
 
   public function edit($params = array(), $object_id = null) {
-    $sql = "UPDATE places SET route = ? , street_number = ?, locality = ?, administrative_area_level_1 = ?, postal_code = ?, country = ?, lat = ?, lng = ? WHERE place_id = ?";
+    $sql = "UPDATE Phone SET phone_number WHERE phone_id = ?";
     if ($place_id) {
       $found = $this->find($place_id);
       if ($found) {
@@ -1837,7 +1973,67 @@ class DateTimeFormater {
     // TODO: need to implment
   }
 
+  public static function getDates($date_time) {
+    $temp_array = array();
+    $date_time = explode(',', $date_time);
+    foreach ($date_time as $param) {
+      $temp_array[] = explode('-', $param);
+    }
+    $dates = array();
+    for ($i = 0; $i < count($temp_array); $i++) {
+      for ($j = 0; $j < count($temp_array[$i]); $j++) {
+        if ($j % 3 == 0) {
+          $date = explode('/', $temp_array[$i][2]);
+          $dates[] = $date[1] . "/" . $date[2] . "/" . $date[0];
+        }
+      }
+    }
+    return $dates;
+  }
 
+  public static function getStartTimes($date_time) {
+    $temp_array = array();
+    $times = array();
+    $date_time = explode(',', $date_time);
+    foreach ($date_time as $param) {
+      $temp_array[] = explode('-', $param);
+    }
+    for($i = 0; $i < count($temp_array); $i++) {
+      $times[] = $temp_array[$i][0];
+    }
+    return $times;
+  }
+
+  public static function getEndTimes($date_time) {
+    $temp_array = array();
+    $times = array();
+    $date_time = explode(',', $date_time);
+    foreach ($date_time as $param) {
+      $temp_array[] = explode('-', $param);
+    }
+    for($i = 0; $i < count($temp_array); $i++) {
+      $times[] = $temp_array[$i][1];
+    }
+    return $times;
+  }
+
+
+
+  public static function getDisplayDate($date_time) {
+    $return_array = array();
+    $date_time = explode(',',$date_time);
+    $count = 0;
+    foreach ($date_time as $param) {
+      if ($count % 3 == 0) {
+
+      }
+      $return_array[] = explode('-', $param);
+      $count++;
+
+    }
+
+    return $return_array;
+  }
 
   public static function getDateTime($date_time) {
     $return_array = array();
@@ -1984,17 +2180,38 @@ class DateTimeFormater {
 class ImageProcesser {
   private $max_size, $errors, $new_location;
 
-  public function __construct($imageName, $location = "../uploads/") {
+  public function __construct($imageName, $index = null) {
     $this->max_size = 500000;
     $this->errors = array();
     $newFile = "";
+    $location = "../uploads/";
+    $name = "";
+    $tempName = "";
+
     if ($imageName) {
-      $target_file = $location . basename($_FILES[$imageName]["name"]);
-      if ($this->validateImage($imageName, $target_file)) {
+      if ($index === 0 || $index > 0) {
+        $name .= $_FILES[$imageName]["name"][$index];
+      } else {
+        $name .= $_FILES[$imageName]["name"][0];
+      }
+      var_dump($_FILES[$imageName]);
+      $target_file = $location . basename($name);
+      $flag = false;
+      if ($index === 0 || $index > 0) {
+        $flag = $this->validateImage($imageName, $target_file,$index);
+      } else {
+        $flag = $this->validateImage($imageName, $target_file);
+      }
+      if ($flag) {
         do {
           $newFile = $location . $this->getUniqueName() . "." . pathinfo($target_file,PATHINFO_EXTENSION);
         } while($this->searchImageNames($newFile));
-        if (!$this->transferImage($_FILES[$imageName]["tmp_name"], $newFile)) {
+        if ($index === 0 || $index > 0) {
+          $tempName .= $_FILES[$imageName]["tmp_name"][$index];
+        } else {
+          $tempName .= $_FILES[$imageName]["tmp_name"][0];
+        }
+        if (!$this->transferImage($tempName, $newFile)) {
           $this->errors[] = "Error uploading image";
         } else {
           // upload was successful
@@ -2010,16 +2227,27 @@ class ImageProcesser {
 
   }
 
-  private function validateImage($imageName, $target_file) {
+  private function validateImage($imageName, $target_file, $index = null) {
     $imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);
     if (strcmp($imageFileType, "") === 0) {
       $this->errors[] = "Error no file selected";
       return false;
     }
-    $check = getimagesize($_FILES[$imageName]["tmp_name"]);
+    $check = false;
+    if ($index === 0 || $index > 0) {
+      $check = getimagesize($_FILES[$imageName]["tmp_name"][$index]);
+    } else {
+      $check = getimagesize($_FILES[$imageName]["tmp_name"][0]);
+    }
     if($check !== false) { // FUTURE: this is a poor method of validation
       // Check file size
-      if ($_FILES["$imageName"]["size"] > $this->max_size) {
+      $size = 0;
+      if ($index === 0 || $index > 0) {
+        $size = $_FILES["$imageName"]["size"][$index];
+      } else {
+        $size = $_FILES["$imageName"]["size"][0];
+      }
+      if ($size > $this->max_size) {
         $this->errors[] = "Sorry, your file is too large.";
         return false;
       } else if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif" ){
@@ -2061,6 +2289,5 @@ class ImageProcesser {
 // TODO: fix indexpage display sales near you table
 // TODO: your sales page html needs to be finsihed
 // TODO: finish create sale
-// TODO: how to implement keywords catagories for items for sale?
 // FUTURE: change each class to their own file then create Objects.php file that requires all objects?
 ?>
