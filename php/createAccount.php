@@ -3,8 +3,8 @@ require_once 'init.php';
 require_once 'Objects.php';
 require_once 'functions.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
   <head>
     <title>
@@ -100,34 +100,34 @@ require_once 'functions.php';
         }
       }
       ?>
-      <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
-        <div class="form-group">
-          <label for="username">Username:</label>
-          <input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : ''); ?>" placeholder="Enter your username you will use it to login">
-        </div>
-        <div class="form-group">
-          <label for="password">Password:</label>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
-        </div>
-        <div class="form-group">
-          <label for="password_again">Reenter Password:</label>
-          <input type="password" class="form-control" id="password_again" name="password_again" placeholder="Enter your password again">
-        </div>
-        <div class="form-group">
-          <label for="fname">First Name:</label>
-          <input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : ''); ?>" placeholder="Enter your first name">
-        </div>
-        <div class="form-group">
-          <label for="lname">Last Name:</label>
-          <input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : ''); ?>" placeholder="Enter your last name">
-        </div>
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : ''); ?>" placeholder="Enter your email address">
-        </div>
-        <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
-        <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
-      </form>
+        <form action="<?php echo sanitizeInput($_SERVER['PHP_SELF']); ?>" method="post">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" value="<?php echo (isset($_POST['username']) ? sanitizeInput($_POST['username']) : ''); ?>" placeholder="Enter your username you will use it to login">
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password">
+          </div>
+          <div class="form-group">
+            <label for="password_again">Reenter Password:</label>
+            <input type="password" class="form-control" id="password_again" name="password_again" placeholder="Enter your password again">
+          </div>
+          <div class="form-group">
+            <label for="fname">First Name:</label>
+            <input type="text" class="form-control" id="fname" name="fname" value="<?php echo (isset($_POST['fname']) ? sanitizeInput($_POST['fname']) : ''); ?>" placeholder="Enter your first name">
+          </div>
+          <div class="form-group">
+            <label for="lname">Last Name:</label>
+            <input type="text" class="form-control" id="lname" name="lname" value="<?php echo (isset($_POST['lname']) ? sanitizeInput($_POST['lname']) : ''); ?>" placeholder="Enter your last name">
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="email" value="<?php echo (isset($_POST['email']) ? sanitizeInput($_POST['email']) : ''); ?>" placeholder="Enter your email address">
+          </div>
+          <input type="hidden" name="token" value="<?php echo Token::generate(); ?>">
+          <button type="submit" class="btn btn-default btn-green pull-right" name="submit">Submit</button>
+        </form>
     </div>
     <br>
     <footer>
@@ -137,4 +137,4 @@ require_once 'functions.php';
     </footer>
   </body>
 
-</html>
+  </html>

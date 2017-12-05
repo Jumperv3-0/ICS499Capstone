@@ -9,50 +9,50 @@ if (!$user->hasSale($gsale->getData()->gsale_id)) {
 }
 ?>
 
-<div class="container">
-  <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data">
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="form-group">
-          <label for="sale_name">Name of sale:</label>
-          <input type="text" class="form-control" id="sale_name" name="sale_name" value="<?php echo(isset($gsale) ? $gsale->getData()->sale_name : ''); ?>" placeholder="Enter name of sale">
+  <div class="container">
+    <form action="<?php echo $_SERVER['PHP_SELF'] ?>" method="post" enctype="multipart/form-data">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <label for="sale_name">Name of sale:</label>
+            <input type="text" class="form-control" id="sale_name" name="sale_name" value="<?php echo(isset($gsale) ? $gsale->getData()->sale_name : ''); ?>" placeholder="Enter name of sale">
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-3">
-        <div class="row">
-          <div class="col-xs-12">
-            <div class="form-group">
-              <?php
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <?php
               if (isset($gsale) && !empty($gsale->getData()->image_url)) {
                 echo "<img src='{$gsale->getData()->image_url}' alt='Picture of garage sale' style='width:100%;'>";
               } else {
                 echo '<img src="https://dummyimage.com/200x200/333/fff.png&text=No+image+uploaded" alt="Picture of garage sale" style="width:100%;">';
               }
               ?>
-              <label for="image">Change image:</label>
-              <input type="file" id="image" name="image[]">
+                  <label for="image">Change image:</label>
+                  <input type="file" id="image" name="image[]">
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <!-- TODO: fix width of col-sm-8 to col-sm-9 othersales page -->
-      <div class="col-sm-9">
-        <div id="date-time" class="form-group">
-          <div class="row">
-            <div class="col-sm-3">
-              <label for="date1">Date:</label>
+        <!-- TODO: fix width of col-sm-8 to col-sm-9 othersales page -->
+        <div class="col-sm-9">
+          <div id="date-time" class="form-group">
+            <div class="row">
+              <div class="col-sm-3">
+                <label for="date1">Date:</label>
+              </div>
+              <div class="col-sm-3">
+                <label for="startTime1">Start Time:</label>
+              </div>
+              <div class="col-sm-3">
+                <label for="endTime1">End Time:</label>
+              </div>
             </div>
-            <div class="col-sm-3">
-              <label for="startTime1">Start Time:</label>
-            </div>
-            <div class="col-sm-3">
-              <label for="endTime1">End Time:</label>
-            </div>
-          </div>
-          <!-- TODO: make dynamic for number of dates -->
-          <?php
+            <!-- TODO: make dynamic for number of dates -->
+            <?php
           $dates = DateTimeFormater::getDates($gsale->getData()->dates);
           $start_times = DateTimeFormater::getStartTimes($gsale->getData()->dates);
           $end_times = DateTimeFormater::getEndTimes($gsale->getData()->dates);
@@ -168,24 +168,24 @@ if (!$user->hasSale($gsale->getData()->gsale_id)) {
           }
           ?>
 
-        </div>
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="form-group">
-              <label for="phone">Phone:</label>
-              <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="phone" class="form-control" id="phone" name="phone" placeholder="(XXX)-XXX-XXXX" onkeypress="phoneFormat()" value="<?php
                                                                                                                                               $db_conn = SqlManager::getInstance();
-                                                                                                                                              $sql = "SELECT phone_id, phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id = garage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id = ?;";
+                                                                                                                                              $sql = " SELECT phone_id, phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id=garage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id=? ; ";
                                                                                                                                               $result = $db_conn->query($sql, array($gsale->getData()->gsale_id));
                                                                                                                                               echo $result->getResult()[0]->phone_number;
                                                                                                                                               ?>" maxlength="16">
-              <input type="hidden" name="phone_id" value="<?php
+                <input type="hidden" name="phone_id" value="<?php
                                                           $db_conn = SqlManager::getInstance();
-                                                          $sql = "SELECT phone_id, phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id = garage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id = ?;";
+                                                          $sql = " SELECT phone_id, phone_number FROM phones JOIN garage_sales_phones ON phones.phone_id=g arage_sales_phones.phone_fk_id WHERE garage_sales_phones.garage_sale_fk_id=? ; ";
                                                           $result = $db_conn->query($sql, array($gsale->getData()->gsale_id));
                                                           echo $result->getResult()[0]->phone_id;
                                                           ?>">
-                     </div>
+              </div>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ if (!$user->hasSale($gsale->getData()->gsale_id)) {
             <label for="location">Location:</label>
             <input type="location" class="form-control" id="location" onfocus="geolocate()" name="location" value="<?php
                                                                                                                    $db_conn = SqlManager::getInstance();
-                                                                                                                   $sql = "SELECT * FROM places JOIN garage_sales_places ON places.place_id = garage_sales_places.place_fk_id WHERE garage_sales_places.garage_sale_fk_id = ?;";
+                                                                                                                   $sql = " SELECT * FROM places JOIN garage_sales_places ON places.place_id=garage_sales_places.place_fk_id WHERE garage_sales_places.garage_sale_fk_id=? ; ";
                                                                                                                    $result = $db_conn->query($sql, array($gsale->getData()->gsale_id));
                                                                                                                    echo $result->getResult()[0]->street_number . " " . $result->getResult()[0]->route . ", " . $result->getResult()[0]->locality . ", " . $result->getResult()[0]->administrative_area_level_1;
                                                                                                                    ?>" placeholder="Enter location of sale">
@@ -325,9 +325,8 @@ if (!$user->hasSale($gsale->getData()->gsale_id)) {
              } else {
                $html .= '<div class="row"><div class="well"><p>No items created yet!</p></div></div>';
              }
-
              $html .= '
-           <input type="hidden" name="gsale_id" value="' . $item_data[0]->gsale_fk_id . '">
+           <input type="hidden" name="gsale_id" value="' . $_GET['gsale_id'] . '">
            <input type="hidden" name="token" value="' . Token::generate() . '">
       <div class="row">
         <div class="col-sm-3 pull-right">
@@ -346,7 +345,7 @@ if (!$user->hasSale($gsale->getData()->gsale_id)) {
              echo $html;
              //var_dump($item_data);
       ?>
-      <br>
-      <br>
+        <br>
+        <br>
 
-    </div>
+  </div>

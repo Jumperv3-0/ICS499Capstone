@@ -550,18 +550,8 @@ CONTENT;
            <li role="separator" class="divider"></li>
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
-										<li>
-											<form class="navbar-form navbar-right" role="search">
-												<div class="input-group">
-													<input id="search" type="text" class="form-control" placeholder="Search" name="search">
-													<div class="input-group-btn">
-														<button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-													</div>
-												</div>
-											</form>
-										</li>
 										<li class="' . ((strcmp($this->getCurrentPage(), "createAccount.php") == 0) ? "active" : 'null') . '"><a href="createAccount.php">Create Account</a></li>
-										<li><a class="'. ((strcmp($this->getCurrentPage(), "login.php") == 0)? "active" : '') . '" href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+										<li><a class="'. ((strcmp($this->getCurrentPage(), "login.php") == 0)? "active" : '') . '" href="index.php"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
 									</ul>
 								</div>
 							</div>
@@ -589,16 +579,6 @@ CONTENT;
            <li role="separator" class="divider"></li>
 									</ul>
 									<ul class="nav navbar-nav navbar-right">
-										<li>
-                      <form class="navbar-form navbar-right" role="search">
-                        <div class="input-group">
-                          <input id="search" type="text" class="form-control" placeholder="Search" name="search">
-                          <div class="input-group-btn">
-                            <button class="btn btn-default" type="submit"><i class="glyphicon glyphicon-search"></i></button>
-                          </div>
-                        </div>
-                      </form>
-										</li>
 										<li class="dropdown '. ((strcmp($this->getCurrentPage(), "yourSales.php") == 0) ? 'active' : '') . '">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Account <span class="caret"></span></a>
 										<ul class="dropdown-menu">
@@ -1372,22 +1352,7 @@ class Validation
                 }
 
               }
-              // FIXME: its all wrong!
-              //              var_dump($value);
-              //              var_dump($rule);
-              //              var_dump($rule_value);
 
-//              $count = 1;
-//              var_dump($submit_method[$rule]);
-//              $size = count($value['name']);
-//              for ($i = 0; $i < $size; $i++) {
-//                if ($size == 1 && strcmp($image_params[0],$submit_method[$rule]) == 0 && getimagesize($submit_method[$rule]->name[$i]) <= 0) {
-//                  $this->addError("{$rules['name']} {$count} was not valid");
-//                } else if($size == 1 && exif_imagetype($image_params[0][$i]) != IMAGETYPE_GIF && exif_imagetype($image_params[0][$i]) != IMAGETYPE_JPEG && exif_imagetype($image_params[0][$i]) != IMAGETYPE_PNG ) {
-//                  $this->addError("Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
-//                }
-//                $count++;
-//              }
               break;
             case 'catagory': // TODO: need to implement
               $catagory_array = array();
@@ -1404,12 +1369,21 @@ class Validation
                 if (!empty($catagory_input)) {
                   $catagories = array('all', 'clothes', 'electronic', 'furnture', 'media', 'tool', 'toy', 'vehicle', 'other');
                   //var_dump($catagory_input);
-                  if (!in_array($catagory_input[0], $catagories)) {
-                    if (strcmp($catagory_input[0], "default") == 0) {
-                      $this->addError("{$rules['name']} {$count} was not valid");
+                  if (!in_array($catagory_input, $catagories)) {
+                    if (is_array($catagory_input)) {
+                      if (strcmp($catagory_input[0], "default") == 0) {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      } else {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      }
                     } else {
-                      $this->addError("{$rules['name']} {$count} was not valid");
+                      if (strcmp($catagory_input, "default") == 0) {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      } else {
+                        $this->addError("{$rules['name']} {$count} was not valid");
+                      }
                     }
+
                   }
                 } else {
                   $this->addError("{$rules['name']} is required");
@@ -2194,7 +2168,7 @@ class ImageProcesser {
       } else {
         $name .= $_FILES[$imageName]["name"][0];
       }
-      var_dump($_FILES[$imageName]);
+      //var_dump($_FILES[$imageName]);
       $target_file = $location . basename($name);
       $flag = false;
       if ($index === 0 || $index > 0) {

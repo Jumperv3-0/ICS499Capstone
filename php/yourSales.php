@@ -6,8 +6,8 @@ if (!$user->isLoggedIn()) {
   Redirect::page('404.php');
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+  <!DOCTYPE html>
+  <html lang="en">
 
   <head>
     <title>
@@ -41,14 +41,14 @@ if (!$user->isLoggedIn()) {
     ?>
 
 
-    <div class="container">
-      <div class="row">
-        <div class="col-sm-12">
-          <h1>Your Sales</h1>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12">
+            <h1>Your Sales</h1>
+          </div>
         </div>
       </div>
-    </div>
-    <?php
+      <?php
     $gsale = new GarageSale();
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && isset($_GET['gsale_id'])) {
       $found = $gsale->find(sanitizeInput($_GET['gsale_id']));
@@ -145,12 +145,12 @@ if (!$user->isLoggedIn()) {
 
         ),
         'price' => array(
-          'required' => true,
+          //'required' => true,
           'price' => true,
           'name' => "Price"
         ),
         'catagory' => array(
-          'required' => true,
+          //'required' => true,
           'catagory' => true,
           'name' => "Catagory"
         )
@@ -171,6 +171,7 @@ if (!$user->isLoggedIn()) {
           //var_dump($filename);
         }
       }
+      //var_dump($filename);
       if ($validation->passed() && $validation2->passed()) {
         echo "<h1>passed</h1>";
         try {
@@ -236,11 +237,11 @@ if (!$user->isLoggedIn()) {
       echo $page->getContent();
     }
     ?>
-    <footer>
-      <?php
+        <footer>
+          <?php
       PageBuilder::getFooter();
       ?>
-    </footer>
+        </footer>
   </body>
 
-</html>
+  </html>
